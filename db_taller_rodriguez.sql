@@ -20,8 +20,6 @@ ADD CONSTRAINT unique_correo_administrador UNIQUE (correo_administrador);
 ALTER TABLE administradores
 ADD CONSTRAINT unique_alias_administrador UNIQUE (alias_administrador);
 
-DESCRIBE administradores;
-
 CREATE TABLE marcas(
     id_marca INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     marca_vehiculo VARCHAR(30) NOT NULL
@@ -29,8 +27,6 @@ CREATE TABLE marcas(
 
 ALTER TABLE marcas
 ADD CONSTRAINT unique_marca_vehiculo UNIQUE (marca_vehiculo);
-
-DESCRIBE marcas;
 
 CREATE TABLE modelos(
     id_modelo INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
@@ -44,16 +40,14 @@ CREATE TABLE modelos(
 ALTER TABLE modelos
 ADD CONSTRAINT unique_modelo_vehiculo UNIQUE (modelo_vehiculo, id_marca);
 
-DESCRIBE modelos;
-
 CREATE TABLE clientes(
     id_cliente INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     nombre_cliente VARCHAR(50) NOT NULL,
     apellido_cliente VARCHAR(50) NOT NULL,
     alias_cliente VARCHAR(50) NOT NULL,
-	contacto_cliente VARCHAR(9) NOT NULL,
     correo_cliente VARCHAR(100) NOT NULL,
     clave_cliente VARCHAR(64) NOT NULL,
+    contacto_cliente VARCHAR(9) NOT NULL,
     estado_cliente BOOLEAN NOT NULL
 );
 
@@ -70,36 +64,30 @@ ADD CONSTRAINT unique_alias_cliente UNIQUE (alias_cliente);
 ALTER TABLE clientes
 ALTER COLUMN estado_cliente SET DEFAULT 1;
 
-DESCRIBE clientes;
-
 CREATE TABLE vehiculos(
     id_vehiculo INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
-	id_cliente INT NOT NULL,
-	id_marca INT NOT NULL,
     id_modelo INT NOT NULL,
+    id_cliente INT NOT NULL,
     placa_vehiculo VARCHAR(30) NOT NULL,
     color_vehiculo VARCHAR(30) NOT NULL,
     vim_motor VARCHAR(50) NOT NULL,
+    id_marca INT NOT NULL,
+    CONSTRAINT fk_vehiculo_modelo
+    FOREIGN KEY (id_modelo)
+    REFERENCES modelos (id_modelo) ON DELETE CASCADE,
     CONSTRAINT fk_vehiculo_cliente
     FOREIGN KEY (id_cliente)
     REFERENCES clientes (id_cliente) ON DELETE CASCADE,
     CONSTRAINT fk_vehiculo_marca
     FOREIGN KEY (id_marca)
-    REFERENCES marcas (id_marca) ON DELETE CASCADE,
-    CONSTRAINT fk_vehiculo_modelo
-    FOREIGN KEY (id_modelo)
-    REFERENCES modelos (id_modelo) ON DELETE CASCADE
+    REFERENCES marcas (id_marca) ON DELETE CASCADE
 );
-
-DESCRIBE vehiculos;
 
 CREATE TABLE servicios(
     id_servicio INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     nombre_servicio VARCHAR(50) NOT NULL,
     descripcion_servicio VARCHAR(250)
 );
-
-DESCRIBE servicios;
 
 CREATE TABLE citas(
     id_cita INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
@@ -119,8 +107,6 @@ CREATE TABLE citas(
     REFERENCES servicios (id_servicio) ON DELETE CASCADE
 );
 
-DESCRIBE citas;
-
 CREATE TABLE piezas(
     id_pieza INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     id_cliente INT NOT NULL,
@@ -138,8 +124,6 @@ ADD CONSTRAINT unique_nombre_pieza UNIQUE (nombre_pieza);
 ALTER TABLE piezas
 ADD CONSTRAINT chk_precio_unitario_positive CHECK (precio_unitario > 0);
 
-DESCRIBE piezas;
-
 CREATE TABLE inventario (
     id_inventario INT AUTO_INCREMENT PRIMARY KEY,
     id_pieza INT NOT NULL,
@@ -150,5 +134,3 @@ CREATE TABLE inventario (
     FOREIGN KEY (id_pieza)
     REFERENCES piezas (id_pieza) ON DELETE CASCADE
 );
-
-DESCRIBE inventario;
