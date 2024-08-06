@@ -38,6 +38,20 @@ export default function Citas({ navigation }) {
     }
   };
 
+  const vehicles = [
+    { label: 'Seleccione un vehículo', value: '' },
+    { label: 'Coche 1', value: 'car1' },
+    { label: 'Coche 2', value: 'car2' },
+    { label: 'Coche 3', value: 'car3' },
+  ];
+
+  const services = [
+    { label: 'Seleccione un servicio', value: '' },
+    { label: 'Servicio 1', value: 'service1' },
+    { label: 'Servicio 2', value: 'service2' },
+    { label: 'Servicio 3', value: 'service3' },
+  ];
+
   return (
     <View style={styles.container}>
       {/* Título de la pantalla */}
@@ -49,8 +63,9 @@ export default function Citas({ navigation }) {
           style={styles.picker}
           onValueChange={(itemValue) => setVehicle(itemValue)}
         >
-          <Picker.Item label="Seleccione un vehículo" value="" />
-          {/* Agrega los vehículos aquí */}
+          {vehicles.map((vehicle, index) => (
+            <Picker.Item key={index} label={vehicle.label} value={vehicle.value} />
+          ))}
         </Picker>
       </View>
       {/* Selector de servicio */}
@@ -60,8 +75,9 @@ export default function Citas({ navigation }) {
           style={styles.picker}
           onValueChange={(itemValue) => setService(itemValue)}
         >
-          <Picker.Item label="Seleccione un servicio" value="" />
-          {/* Puedes añadir más servicios según sea necesario */}
+          {services.map((service, index) => (
+            <Picker.Item key={index} label={service.label} value={service.value} />
+          ))}
         </Picker>
       </View>
       {/* Campo de entrada para la fecha de la cita */}
