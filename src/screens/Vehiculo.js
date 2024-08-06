@@ -18,8 +18,9 @@ export default function RegistroVehiculo({ navigation }) {
     });
 
     // Fetch modelos y marcas desde la API o base de datos
-    fetchModelos();
     fetchMarcas();
+    fetchModelos();
+    
   }, []);
 
   const ip = Constantes.IP;
@@ -41,7 +42,7 @@ export default function RegistroVehiculo({ navigation }) {
             });
       const data = await response.json();
       console.log(data);
-      setModelos(data.content);
+      setModelos(data);
     } catch (error) {
       console.error(error);
     }
@@ -55,7 +56,7 @@ export default function RegistroVehiculo({ navigation }) {
             });
       const data = await response.json();
       console.log(data);
-      setMarcas(data.content);
+      setMarcas(data);
     } catch (error) {
       console.error(error);
     }
@@ -91,7 +92,7 @@ export default function RegistroVehiculo({ navigation }) {
           onValueChange={(itemValue) => setModelo(itemValue)}
         >
           <Picker.Item label="Seleccione un modelo" value="" />
-          {modelos?.map((modelo) => (
+          {modelos?.content.map((modelo) => (
             <Picker.Item key={modelo.id_modelo} label={modelo.modelo_vehiculo} value={modelo.id_modelo} />
           ))}
         </Picker>
