@@ -165,6 +165,11 @@ export default function Sesion({ navigation }) {
             <TouchableOpacity onPress={handlerLogin} style={styles.loginButton}>
                 <Text style={styles.loginButtonText}>INICIAR SESIÓN</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={cerrarSesion} style={styles.logoutButton}>
+    <Text style={styles.logoutButtonText}>CERRAR SESIÓN</Text>
+</TouchableOpacity>
+
+            
             <AwesomeAlert
                 show={showAlertWithMessage}
                 showProgress={showProgress}
