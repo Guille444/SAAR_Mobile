@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import * as Constantes from '../../utils/constantes';
+
 
 export default function RegistroVehiculo({ navigation }) {
 
@@ -20,6 +22,8 @@ export default function RegistroVehiculo({ navigation }) {
     fetchMarcas();
   }, []);
 
+  const ip = Constantes.IP;
+
   const [modelos, setModelos] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [modelo, setModelo] = useState('');
@@ -32,9 +36,12 @@ export default function RegistroVehiculo({ navigation }) {
   const fetchModelos = async () => {
     try {
       // Reemplaza con la URL real de tu API o base de datos
-      const response = await fetch('https://tu-api/modelos');
+      const response = await fetch(`${ip}/services/public/modelo.php?action=readAll`, {
+                method: 'GET'
+            });
       const data = await response.json();
-      setModelos(data);
+      console.log(data);
+      setModelos(data.content);
     } catch (error) {
       console.error(error);
     }
@@ -43,9 +50,12 @@ export default function RegistroVehiculo({ navigation }) {
   const fetchMarcas = async () => {
     try {
       // Reemplaza con la URL real de tu API o base de datos
-      const response = await fetch('https://tu-api/marcas');
+      const response = await fetch(`${ip}/services/public/marca.php?action=readAll`, {
+                method: 'GET'
+            });
       const data = await response.json();
-      setMarcas(data);
+      console.log(data);
+      setMarcas(data.content);
     } catch (error) {
       console.error(error);
     }
@@ -67,8 +77,8 @@ export default function RegistroVehiculo({ navigation }) {
           onValueChange={(itemValue) => setMarca(itemValue)}
         >
           <Picker.Item label="Seleccione una marca" value="" />
-          {marcas.map((marca) => (
-            <Picker.Item key={marca.id_marca} label={marca.nombre_marca} value={marca.id_marca} />
+          {marcas?.map((marca) => (
+            <Picker.Item key={marca.id_marca} label={marca.marca_vehiculo} value={marca.id_marca} />
           ))}
         </Picker>
       </View>
@@ -81,8 +91,8 @@ export default function RegistroVehiculo({ navigation }) {
           onValueChange={(itemValue) => setModelo(itemValue)}
         >
           <Picker.Item label="Seleccione un modelo" value="" />
-          {modelos.map((modelo) => (
-            <Picker.Item key={modelo.id_modelo} label={modelo.nombre_modelo} value={modelo.id_modelo} />
+          {modelos?.map((modelo) => (
+            <Picker.Item key={modelo.id_modelo} label={modelo.modelo_vehiculo} value={modelo.id_modelo} />
           ))}
         </Picker>
       </View>

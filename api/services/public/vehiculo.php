@@ -52,6 +52,7 @@ if (isset($_GET['action'])) {
                     $result['error'] = 'No existen clientees registrados';
                 }
                 break;
+
             case 'readOne':
                 if (!$cliente->setId($_POST['idCliente'])) {
                     $result['error'] = 'cliente incorrecto';

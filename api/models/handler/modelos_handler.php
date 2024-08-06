@@ -38,7 +38,7 @@ class ModeloHandler
 
     public function readAll()
     {
-        $sql = 'SELECT id_modelo, modelo_vehiculo, marca_vehiculo
+        $sql = 'SELECT id_modelo, modelo_vehiculo, id_marca
                 FROM modelos
                 INNER JOIN marcas USING(id_marca)
                 ORDER BY modelo_vehiculo';
