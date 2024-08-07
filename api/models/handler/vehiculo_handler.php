@@ -52,7 +52,7 @@ class VehiculoHandler
     public function createRow()
     {
         $sql = 'INSERT INTO vehiculos(id_modelo,id_cliente, anio_vehiculo, placa_vehiculo,color_vehiculo,vim_motor,id_marca) 
-                VALUES (?,?,?,?,?,?)';
+                VALUES (?,?,?,?,?,?,?)';
         $params = array($this->modelo, $_SESSION['idCliente'], $this->año, $this->placa, $this->color, $this->vim, $this->marca);
         return Database::getRows($sql, $params);
     }
