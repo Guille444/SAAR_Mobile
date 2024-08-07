@@ -135,3 +135,9 @@ CREATE TABLE inventario (
     FOREIGN KEY (id_pieza)
     REFERENCES piezas (id_pieza) ON DELETE CASCADE
 );
+
+SELECT * FROM vehiculos;
+SELECT * FROM clientes;
+
+INSERT INTO marcas(marca_vehiculo) VALUES ("prueba");
+INSERT INTO modelos(modelo_vehiculo,id_marca) VALUES ("pruebaModelo", 1);

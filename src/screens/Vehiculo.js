@@ -34,6 +34,14 @@ export default function RegistroVehiculo({ navigation }) {
   const [matricula, setMatricula] = useState('');
   const [color, setColor] = useState('');
   const [vin, setVin] = useState('');
+  const [showAlert, setShowAlert] = useState(false);// Estado para manejar la visibilidad de la alerta.
+  const [alertMessage, setAlertMessage] = useState('');// Estado para manejar el mensaje de la alerta.
+
+  const showAlertWithMessage = (message) => {
+    setAlertMessage(message);  // Establece el mensaje de la alerta.
+    setShowAlert(true); // Muestra la alerta.
+};
+
 
   const fetchModelos = async () => {
     try {
@@ -123,7 +131,7 @@ export default function RegistroVehiculo({ navigation }) {
           onValueChange={(itemValue) => setModelo(itemValue)}
         >
           <Picker.Item label="Seleccione un modelo" value="" />
-          {modelos.map((modelo, id_modelo) => (
+          {modelos.map((modelo) => (
             <Picker.Item key={modelo.id_modelo} label={modelo.modelo_vehiculo} value={modelo.id_modelo} />
           ))}
         </Picker>
