@@ -12,6 +12,14 @@ class VehiculoHandler
     *   Métodos para realizar las operaciones SCRUD (search, create, read, update, and delete).
     */
 
+    protected $id = null;
+    protected $modelo = null;
+    protected $placa = null;
+    protected $color = null;
+    protected $año = null;
+    protected $vim = null;
+    protected $marca = null;
+
     public function searchRows()
     {
         $value = '%' . Validator::getSearchValue() . '%';
@@ -39,5 +47,13 @@ class VehiculoHandler
                 INNER JOIN marcas ma ON v.id_marca = ma.id_marca
                 ORDER BY m.modelo_vehiculo;';
         return Database::getRows($sql);
+    }
+
+    public function createRow()
+    {
+        $sql = 'INSERT INTO vehiculos(id_modelo,id_cliente, anio_vehiculo, placa_vehiculo,color_vehiculo,vim_motor,id_marca) 
+                VALUES (?,?,?,?,?,?)';
+        $params = array($this->modelo, $_SESSION['idCliente'], $this->año, $this->placa, $this->color, $this->vim, $this->marca);
+        return Database::getRows($sql, $params);
     }
 }

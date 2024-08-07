@@ -7,7 +7,7 @@ if (isset($_GET['action'])) {
     // Se crea una sesión o se reanuda la actual para poder utilizar variables de sesión en el script.
     session_start();
     // Se instancia la clase correspondiente.
-    $cliente = new ClienteData;
+    $vehiculo = new VehiculoData;
     // Se declara e inicializa un arreglo para guardar el resultado que retorna la API.
     $result = array('status' => 0, 'session' => 0, 'message' => null, 'error' => null, 'exception' => null, 'username' => null);
     // Se verifica si existe una sesión iniciada como cliente para realizar las acciones correspondientes.
@@ -28,24 +28,22 @@ if (isset($_GET['action'])) {
             case 'createRow':
                 $_POST = Validator::validateForm($_POST);
                 if (
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['aliasCliente']) or
-                    !$cliente->setContacto($_POST['contactoCliente']) or
-                    !$cliente->setCorreo($_POST['correoCliente']) or
-                    !$cliente->setClave($_POST['claveCliente'])
+                    !$vehiculo->setModelo($_POST['modeloVehiculo']) or
+                    !$vehiculo->setPlaca($_POST['placaVehiculo']) or
+                    !$vehiculo->setAño($_POST['anioVehiculo']) or
+                    !$vehiculo->setColor($_POST['colorVehiculo']) or
+                    !$vehiculo->setVim($_POST['vimVehiculo']) or
+                    !$vehiculo->setMarca($_POST['marcaVehiculo'])
                 ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($_POST['claveCliente'] != $_POST['confirmarClave']) {
-                    $result['error'] = 'Contraseñas diferentes';
-                } elseif ($cliente->createRow()) {
+                    $result['error'] = $vehiculo->getDataError();
+                } elseif ($vehiculo->createRow()) {
                     $result['status'] = 1;
-                    $result['message'] = 'cliente creado correctamente';
+                    $result['message'] = 'vehiculo agregado correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al crear el administrador';
+                    $result['error'] = 'Ocurrió un problema al agregar el vehiculo';
                 }
             case 'readAll':
-                if ($result['dataset'] = $cliente->readAll()) {
+                if ($result['dataset'] = $vehiculo->readAll()) {
                     $result['status'] = 1;
                     $result['message'] = 'Existen ' . count($result['dataset']) . ' registros';
                 } else {

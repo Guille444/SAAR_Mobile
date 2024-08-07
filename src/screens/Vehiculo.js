@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
 
@@ -19,8 +20,8 @@ export default function RegistroVehiculo({ navigation }) {
 
     // Fetch modelos y marcas desde la API o base de datos
     fetchMarcas();
-    fetchModelos();
-    
+    //fetchModelos();
+
   }, []);
 
   const ip = Constantes.IP;
@@ -38,8 +39,8 @@ export default function RegistroVehiculo({ navigation }) {
     try {
       // Reemplaza con la URL real de tu API o base de datos
       const response = await fetch(`${ip}/services/public/modelo.php?action=readAll`, {
-                method: 'GET'
-            });
+        method: 'GET'
+      });
       const data = await response.json();
       console.log(data);
       setModelos(data);
@@ -52,8 +53,8 @@ export default function RegistroVehiculo({ navigation }) {
     try {
       // Reemplaza con la URL real de tu API o base de datos
       const response = await fetch(`${ip}/services/public/marca.php?action=readAll`, {
-                method: 'GET'
-            });
+        method: 'GET'
+      });
       const data = await response.json();
       console.log(data);
       setMarcas(data);
@@ -62,8 +63,41 @@ export default function RegistroVehiculo({ navigation }) {
     }
   };
 
-  const registrarVehiculo = () => {
-    // Lógica para registrar el vehículo
+  const registrarVehiculo = async () => {
+    if (!modelo.trim() || !marca.trim() || !año.trim() || !matricula.trim() ||
+      !color.trim() || !vin.trim()) {
+      showAlertWithMessage("Debes llenar todos los campos");
+      return;
+    }
+
+    try {
+      // Creación de un objeto FormData para enviar los datos del formulario.
+      const formData = new FormData();
+      formData.append('marcaVehiculo', marca);
+      formData.append('modeloVehiculo', modelo);
+      formData.append('anioVehiculo', año);
+      formData.append('placaVehiculo', matricula);
+      formData.append('colorVehiculo', color);
+      formData.append('vimVehiculo', vin);
+
+      // Envío de los datos del formulario al servidor.
+      const response = await fetch(`${ip}/services/public/vehiculo.php?action=createRow`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const responseText = await response.text();
+      console.log(responseText); // Muestra la respuesta cruda en la consola
+
+      const data = JSON.parse(responseText);
+      if (data.status) {
+        showAlertWithMessage('Vehiculo agregado correctamente');
+      } else {
+        showAlertWithMessage(data.error);
+      }
+    } catch (error) {
+      showAlertWithMessage('Ocurrió un problema al agregar el producto');
+    }
   };
 
   return (
@@ -78,7 +112,7 @@ export default function RegistroVehiculo({ navigation }) {
           onValueChange={(itemValue) => setMarca(itemValue)}
         >
           <Picker.Item label="Seleccione una marca" value="" />
-          {marcas?.map((marca) => (
+          {marcas.map((marca, id_marca) => (
             <Picker.Item key={marca.id_marca} label={marca.marca_vehiculo} value={marca.id_marca} />
           ))}
         </Picker>
@@ -92,7 +126,7 @@ export default function RegistroVehiculo({ navigation }) {
           onValueChange={(itemValue) => setModelo(itemValue)}
         >
           <Picker.Item label="Seleccione un modelo" value="" />
-          {modelos?.content.map((modelo) => (
+          {modelos.map((modelo, id_modelo) => (
             <Picker.Item key={modelo.id_modelo} label={modelo.modelo_vehiculo} value={modelo.id_modelo} />
           ))}
         </Picker>

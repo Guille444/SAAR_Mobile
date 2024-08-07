@@ -71,6 +71,7 @@ CREATE TABLE vehiculos(
     placa_vehiculo VARCHAR(30) NOT NULL,
     color_vehiculo VARCHAR(30) NOT NULL,
     vim_motor VARCHAR(50) NOT NULL,
+    anio_vehiculo INT NOT NULL,
     id_marca INT NOT NULL,
     CONSTRAINT fk_vehiculo_modelo
     FOREIGN KEY (id_modelo)
