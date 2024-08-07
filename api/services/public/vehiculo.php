@@ -1,6 +1,6 @@
 <?php
 // Se incluye la clase del modelo.
-require_once('../../models/data/cliente_data.php');
+require_once('../../models/data/vehiculo_data.php');
 
 // Se comprueba si existe una acción a realizar, de lo contrario se finaliza el script con un mensaje de error.
 if (isset($_GET['action'])) {
@@ -138,52 +138,7 @@ if (isset($_GET['action'])) {
             default:
                 $result['error'] = 'Acción no disponible dentro de la sesión';
         }
-    } else {
-        // Se compara la acción a realizar cuando el cliente no ha iniciado sesión.
-        switch ($_GET['action']) {
-            case 'readUsers':
-                if ($cliente->readAll()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Debe autenticarse para ingresar';
-                } else {
-                    $result['error'] = 'Debe crear un cliente para comenzar';
-                }
-                break;
-            case 'signUp':
-                $_POST = Validator::validateForm($_POST);
-                if (
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['aliasCliente']) or
-                    !$cliente->setContacto($_POST['contactoCliente']) or
-                    !$cliente->setCorreo($_POST['correoCliente']) or
-                    !$cliente->setClave($_POST['claveCliente'])
-                ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($_POST['claveCliente'] != $_POST['confirmarClave']) {
-                    $result['error'] = 'Contraseñas diferentes';
-                } elseif ($cliente->createRow()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Cuenta registrada correctamente';
-                } else {
-                    $result['error'] = 'Ocurrió un problema al registrar la cuenta';
-                }
-                break;
-            case 'logIn':
-                $_POST = Validator::validateForm($_POST);
-                if (!$cliente->checkUser($_POST['alias'], $_POST['clave'])) {
-                    $result['error'] = 'Datos incorrectos';
-                } elseif ($cliente->checkStatus()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Autenticación correcta';
-                } else {
-                    $result['error'] = 'La cuenta ha sido desactivada';
-                }
-                break;
-            default:
-                $result['error'] = 'Acción no disponible fuera de la sesión';
-        }
-    }
+    } 
     // Se obtiene la excepción del servidor de base de datos por si ocurrió un problema.
     $result['exception'] = Database::getException();
     // Se indica el tipo de contenido a mostrar y su respectivo conjunto de caracteres.

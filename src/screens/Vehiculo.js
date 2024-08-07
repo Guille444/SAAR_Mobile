@@ -20,7 +20,7 @@ export default function RegistroVehiculo({ navigation }) {
 
     // Fetch modelos y marcas desde la API o base de datos
     fetchMarcas();
-    //fetchModelos();
+    fetchModelos();
 
   }, []);
 
@@ -43,7 +43,7 @@ export default function RegistroVehiculo({ navigation }) {
       });
       const data = await response.json();
       console.log(data);
-      setModelos(data);
+      setModelos(data.dataset);
     } catch (error) {
       console.error(error);
     }
@@ -57,18 +57,15 @@ export default function RegistroVehiculo({ navigation }) {
       });
       const data = await response.json();
       console.log(data);
-      setMarcas(data);
+      setMarcas(data.dataset);
+      
     } catch (error) {
       console.error(error);
     }
   };
 
   const registrarVehiculo = async () => {
-    if (!modelo.trim() || !marca.trim() || !año.trim() || !matricula.trim() ||
-      !color.trim() || !vin.trim()) {
-      showAlertWithMessage("Debes llenar todos los campos");
-      return;
-    }
+  
 
     try {
       // Creación de un objeto FormData para enviar los datos del formulario.
@@ -112,7 +109,7 @@ export default function RegistroVehiculo({ navigation }) {
           onValueChange={(itemValue) => setMarca(itemValue)}
         >
           <Picker.Item label="Seleccione una marca" value="" />
-          {marcas.map((marca, id_marca) => (
+          {marcas.map((marca) => (
             <Picker.Item key={marca.id_marca} label={marca.marca_vehiculo} value={marca.id_marca} />
           ))}
         </Picker>
