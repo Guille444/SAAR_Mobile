@@ -108,28 +108,24 @@ export default function Registro({ navigation }) {
                 onChangeText={setNombre}
                 style={styles.input}
                 placeholder="Nombre"
-                placeholderTextColor="#000"
             />
             <TextInput
                 value={apellido}
                 onChangeText={setApellido}
                 style={styles.input}
                 placeholder="Apellido"
-                placeholderTextColor="#000"
             />
             <TextInput
                 value={alias}
                 onChangeText={setAlias}
                 style={styles.input}
                 placeholder="Alias"
-                placeholderTextColor="#000"
             />
             <TextInput
                 value={telefono}
                 onChangeText={handleTextChange}
                 style={styles.input}
                 placeholder="Número de teléfono"
-                placeholderTextColor="#000"
                 keyboardType="phone-pad"
             />
             <TextInput
@@ -137,7 +133,6 @@ export default function Registro({ navigation }) {
                 onChangeText={setEmail}
                 style={styles.input}
                 placeholder="Correo electrónico"
-                placeholderTextColor="#000"
                 keyboardType="email-address"
             />
             <TextInput
@@ -145,7 +140,6 @@ export default function Registro({ navigation }) {
                 onChangeText={setClave}
                 style={styles.input}
                 placeholder="Contraseña"
-                placeholderTextColor="#000"
                 secureTextEntry={true}
             />
             <TextInput
@@ -153,7 +147,6 @@ export default function Registro({ navigation }) {
                 onChangeText={setConfirmarClave}
                 style={styles.input}
                 placeholder="Confirmar contraseña"
-                placeholderTextColor="#000"
                 secureTextEntry={true}
             />
             <TouchableOpacity onPress={handleCreate} style={styles.button}>
@@ -206,6 +199,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 32,
+        fontWeight: 'bold',
     },
     subtitle: {
         fontSize: 18,
@@ -214,20 +208,21 @@ const styles = StyleSheet.create({
     },
     input: {
         width: '100%',
-        height: 50,
-        borderColor: '#000',
+        padding: 8,
         borderWidth: 1,
-        marginBottom: 12,
-        paddingLeft: 10,
-        fontSize: 16,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        marginBottom: 16,
+        backgroundColor: '#f9f9f9', // Fondo claro para los campos de entrada
     },
     button: {
         width: '100%',
+        borderRadius: 8, // Bordes redondeados para el botón
         height: 50,
         backgroundColor: '#000',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 24,
+        marginTop: 5,
     },
     buttonText: {
         color: '#fff',

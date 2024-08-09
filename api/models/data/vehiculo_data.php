@@ -3,8 +3,9 @@
 require_once('../../helpers/validator.php');
 // Se incluye la clase padre.
 require_once('../../models/handler/vehiculo_handler.php');
+
 /*
-*	Clase para manejar el encapsulamiento de los datos de la tabla CLIENTE.
+* Clase para manejar el encapsulamiento de los datos de la tabla VEHICULO.
 */
 class VehiculoData extends VehiculoHandler
 {
@@ -12,7 +13,7 @@ class VehiculoData extends VehiculoHandler
     private $data_error = null;
 
     /*
-    *   Métodos para validar y establecer los datos.
+    * Métodos para validar y establecer los datos.
     */
     public function setId($value)
     {
@@ -20,37 +21,15 @@ class VehiculoData extends VehiculoHandler
             $this->id = $value;
             return true;
         } else {
-            $this->data_error = 'El identificador del vehiculo es incorrecto';
+            $this->data_error = 'El identificador del vehículo es incorrecto';
             return false;
         }
     }
 
-    public function setModelo($value)
+    public function setIdCliente($value)
     {
         if (Validator::validateNaturalNumber($value)) {
-            $this->modelo = $value;
-            return true;
-        } else {
-            $this->data_error = 'El identificador del modelo es incorrecto';
-            return false;
-        }
-    }
-
-    public function setAño($value)
-    {
-        if (Validator::validateNaturalNumber($value)) {
-            $this->existencias = $value;
-            return true;
-        } else {
-            $this->data_error = 'El año debe ser numérico entero';
-            return false;
-        }
-    }
-
-    public function setCliente($value)
-    {
-        if (Validator::validateNaturalNumber($value)) {
-            $this->cliente = $value;
+            $this->id_cliente = $value;
             return true;
         } else {
             $this->data_error = 'El identificador del cliente es incorrecto';
@@ -58,62 +37,75 @@ class VehiculoData extends VehiculoHandler
         }
     }
 
+    public function setIdMarca($value)
+    {
+        if (Validator::validateNaturalNumber($value)) {
+            $this->id_marca = $value;
+            return true;
+        } else {
+            $this->data_error = 'El identificador de la marca es incorrecto';
+            return false;
+        }
+    }
+
+    public function setIdModelo($value)
+    {
+        if (Validator::validateNaturalNumber($value)) {
+            $this->id_modelo = $value;
+            return true;
+        } else {
+            $this->data_error = 'El identificador del modelo es incorrecto';
+            return false;
+        }
+    }
+
     public function setPlaca($value, $min = 2, $max = 50)
     {
-        if (!Validator::validateAlphanumeric($value)) {
-            $this->data_error = 'La placa debe ser un valor alfanumérico';
-            return false;
-        } elseif (Validator::validateLength($value, $min, $max)) {
+        if (Validator::validateAlphanumeric($value) && Validator::validateLength($value, $min, $max)) {
             $this->placa = $value;
             return true;
         } else {
-            $this->data_error = 'La placa debe tener una longitud entre ' . $min . ' y ' . $max;
+            $this->data_error = 'La placa debe tener una longitud entre ' . $min . ' y ' . $max . ' caracteres y puede contener letras y números';
             return false;
         }
     }
 
     public function setColor($value, $min = 2, $max = 50)
     {
-        if (!Validator::validateAlphanumeric($value)) {
-            $this->data_error = 'El nombre del color debe ser un valor alfanumérico';
-            return false;
-        } elseif (Validator::validateLength($value, $min, $max)) {
+        if (Validator::validateString($value) && Validator::validateLength($value, $min, $max)) {
             $this->color = $value;
             return true;
         } else {
-            $this->data_error = 'El nombre del color debe tener una longitud entre ' . $min . ' y ' . $max;
+            $this->data_error = 'El color debe tener una longitud entre ' . $min . ' y ' . $max . ' caracteres y puede contener letras y espacios';
             return false;
         }
     }
 
-    public function setVim($value, $min = 2, $max = 50)
+    public function setVin($value, $min = 2, $max = 50)
     {
-        if (!Validator::validateAlphanumeric($value)) {
-            $this->data_error = 'El vim debe ser un valor alfanumérico';
-            return false;
-        } elseif (Validator::validateLength($value, $min, $max)) {
-            $this->vim = $value;
+        if (Validator::validateAlphanumeric($value) && Validator::validateLength($value, $min, $max)) {
+            $this->vin = $value;
             return true;
         } else {
-            $this->data_error = 'El vim debe tener una longitud entre ' . $min . ' y ' . $max;
+            $this->data_error = 'El VIN debe tener una longitud entre ' . $min . ' y ' . $max . ' caracteres y puede contener letras y números';
             return false;
         }
     }
 
-    public function setMarca($value)
+    public function setAño($value, $min = 4, $max = 4)
     {
-        if (Validator::validateNaturalNumber($value)) {
-            $this->marca = $value;
+        if (Validator::validateNaturalNumber($value) && Validator::validateLength($value, $min, $max)) {
+            $this->año = $value;
             return true;
         } else {
-            $this->data_error = 'El identificador de la marca es incorrecto';
+            $this->data_error = 'El año debe tener una longitud de ' . $min . ' caracteres y debe ser un número válido';
             return false;
         }
-    }    
+    }
 
+    // Método para obtener el error de los datos.
     public function getDataError()
     {
         return $this->data_error;
     }
-    
 }

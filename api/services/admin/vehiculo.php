@@ -1,6 +1,6 @@
 <?php
 // Se incluye la clase del modelo de vehiculo.
-require_once('../../models/handler/vehiculo_data.php');
+require_once('../../models/handler/vehiculo_handler.php');
 require_once('../../helpers/validator.php'); // Asegúrate de incluir la clase Validator
 
 // Se comprueba si existe una acción a realizar, de lo contrario se finaliza el script con un mensaje de error.

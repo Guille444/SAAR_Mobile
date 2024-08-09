@@ -119,4 +119,18 @@ class Database
     {
         return self::$error;
     }
+
+    public static function fetchColumn($query, $values = null)
+    {
+        try {
+            self::$connection = new PDO('mysql:host=' . SERVER . ';dbname=' . DATABASE, USERNAME, PASSWORD);
+            self::$statement = self::$connection->prepare($query);
+            self::$statement->execute($values);
+            // Obtiene el valor de la primera columna de la primera fila
+            return self::$statement->fetchColumn();
+        } catch (PDOException $error) {
+            self::setException($error->getCode(), $error->getMessage());
+            return false;
+        }
+    }
 }

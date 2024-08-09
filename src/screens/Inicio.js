@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
 export default function Inicio({ navigation }) {
@@ -17,41 +16,12 @@ export default function Inicio({ navigation }) {
         });
     }, []);
 
-    // Estados para manejar la visibilidad y el mensaje de la alerta
-    const [alertVisible, setAlertVisible] = useState(false);
-    const [alertMessage, setAlertMessage] = useState('');
-    const [alertType, setAlertType] = useState('success');
-
-    // Función para mostrar una alerta con un mensaje específico
-    const showAlert = (title, message, type) => {
-        setAlertMessage(message); // Establecer el mensaje de la alerta
-        setAlertType(type); // Establecer el tipo de alerta
-        setAlertVisible(true); // Mostrar la alerta
-    };
-
     return (
         <View style={styles.container}>
             <Image source={require('../img/llanta.png')} style={styles.image} />
             <TouchableOpacity>
                 <Text style={styles.welcomeText}>Bienvenid@</Text>
             </TouchableOpacity>
-            <AwesomeAlert
-                show={alertVisible}
-                showProgress={false}
-                title={alertType === 'success' ? 'Éxito' : 'Error'}
-                message={alertMessage}
-                closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
-                showConfirmButton={true}
-                confirmText="OK"
-                confirmButtonColor={alertType === 'success' ? '#0A305E' : '#DD6B55'}
-                confirmButtonStyle={styles.alertConfirmButton}
-                confirmButtonTextStyle={styles.alertConfirmButtonText}
-                onConfirmPressed={() => setAlertVisible(false)}
-                contentContainerStyle={styles.alertContentContainer}
-                titleStyle={styles.alertTitle}
-                messageStyle={styles.alertMessage}
-            />
         </View>
     );
 }
@@ -61,6 +31,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'white', // Establece el fondo blanco aquí
     },
     headerTitleContainer: {
         flexDirection: 'row',
@@ -89,6 +60,7 @@ const styles = StyleSheet.create({
     alertContentContainer: {
         borderRadius: 10,
         padding: 20,
+        backgroundColor: 'white', // Asegúrate de que el fondo sea blanco
     },
     alertTitle: {
         fontSize: 22,

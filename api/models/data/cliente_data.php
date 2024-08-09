@@ -53,12 +53,12 @@ class ClienteData extends ClienteHandler
         }
     }
 
-    public function setAlias($value, $min = 6, $max = 25)
+    public function setAlias($value, $min = 6, $max = 25, $checkDuplicate = true)
     {
         if (!Validator::validateAlphanumeric($value)) {
             $this->data_error = 'El alias debe ser un valor alfanumérico';
             return false;
-        } elseif ($this->checkDuplicate2($value, $this->id)) {
+        } elseif ($checkDuplicate && $this->checkDuplicate2($value, $this->id)) {
             $this->data_error = 'El alias ingresado ya existe';
             return false;
         } elseif (Validator::validateLength($value, $min, $max)) {
@@ -116,6 +116,18 @@ class ClienteData extends ClienteHandler
             return true;
         } else {
             $this->data_error = 'Estado incorrecto';
+            return false;
+        }
+    }
+
+    public function setPin($value)
+    {
+        // Valida que el teléfono tenga el formato correcto.
+        if (Validator::validatePin($value)) {
+            $this->pin = $value;
+            return true;
+        } else {
+            $this->data_error = 'El pin contiene caractéres inválidos';
             return false;
         }
     }

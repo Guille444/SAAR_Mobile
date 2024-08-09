@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
 export default function Perfil({ navigation }) {
+
   const ip = Constantes.IP;
 
   useEffect(() => {
@@ -16,7 +18,6 @@ export default function Perfil({ navigation }) {
       headerTitleAlign: 'center',
       headerRight: () => (
         <TouchableOpacity onPress={handleLogout} style={styles.headerRightContainer}>
-          <Text style={styles.logoutText}>Cerrar sesión</Text>
           <Image
             source={require('../img/sesion.png')}
             style={styles.logoutIcon}
@@ -24,11 +25,7 @@ export default function Perfil({ navigation }) {
         </TouchableOpacity>
       ),
     });
-  }, []);
-
-  const irCambiarContraseña = async () => {
-    navigation.navigate('Contrasenia');
-  };
+  }, [navigation]);
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -71,9 +68,11 @@ export default function Perfil({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    fetchProfileData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfileData();
+    }, [])
+  );
 
   const handleLogout = async () => {
     try {
@@ -93,6 +92,21 @@ export default function Perfil({ navigation }) {
     } catch (error) {
       showAlert('Error de red', "Ocurrió un error de red.", 'error');
     }
+  };
+
+  const handleTextChange = (text) => {
+    let formatted = text.replace(/[^\d]/g, ''); // Elimina todos los caracteres no numéricos.
+    if (formatted.length > 8) {
+      formatted = formatted.slice(0, 8); // Limita a 8 dígitos.
+    }
+    if (formatted.length > 4) {
+      formatted = formatted.slice(0, 4) + '-' + formatted.slice(4); // Formatea como XXXX-XXXX.
+    }
+    setProfileData((prevData) => ({ ...prevData, contacto_cliente: formatted })); // Actualiza el estado con el valor formateado.
+  };
+
+  const irCambiarContraseña = () => {
+    navigation.navigate('Contrasenia');
   };
 
   const editProfile = async () => {
@@ -145,7 +159,7 @@ export default function Perfil({ navigation }) {
         style={styles.input}
         placeholder="Número de teléfono"
         value={profileData.contacto_cliente}
-        onChangeText={(text) => setProfileData((prevData) => ({ ...prevData, contacto_cliente: text }))}
+        onChangeText={handleTextChange} // Utiliza handleTextChange para formatear y actualizar el número de teléfono.
         keyboardType="phone-pad"
       />
       <TextInput
@@ -154,13 +168,12 @@ export default function Perfil({ navigation }) {
         value={profileData.correo_cliente}
         onChangeText={(text) => setProfileData((prevData) => ({ ...prevData, correo_cliente: text }))}
       />
-      <TouchableOpacity onPress={irCambiarContraseña} style={styles.button}>
-        <Text style={styles.buttonText}>CAMBIAR CONTRASEÑA</Text>
-      </TouchableOpacity>
       <TouchableOpacity onPress={editProfile} style={styles.button}>
         <Text style={styles.buttonText}>GUARDAR</Text>
       </TouchableOpacity>
-
+      <TouchableOpacity onPress={irCambiarContraseña} style={styles.button2}>
+        <Text style={styles.buttonText}>CAMBIAR CONTRASEÑA</Text>
+      </TouchableOpacity>
       <AwesomeAlert
         show={alertVisible}
         showProgress={false}
@@ -191,26 +204,37 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontSize: 32,
+    fontSize: 30,
     marginBottom: 24,
     textAlign: 'center',
+    fontWeight: 'bold',
     fontStyle: 'italic',
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f0f0', // Fondo gris claro similar al botón
     width: '100%',
     height: 50,
-    borderColor: '#000',
+    borderColor: '#ddd',
     borderWidth: 1,
     marginBottom: 12,
     paddingLeft: 10,
     fontSize: 16,
+    borderRadius: 8, // Bordes redondeados para el input
+    backgroundColor: '#f9f9f9', // Fondo claro para los campos de entrada
   },
   button: {
-    backgroundColor: '#000',
+    backgroundColor: '#000', // Fondo negro similar al input
     paddingVertical: 12,
     alignItems: 'center',
     marginTop: 12,
+    borderRadius: 8, // Bordes redondeados para el botón
+  },
+  button2: {
+    backgroundColor: '#FEAF00', // Fondo negro similar al input
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 12,
+    borderRadius: 8, // Bordes redondeados para el botón
   },
   buttonText: {
     color: '#fff',
@@ -227,7 +251,7 @@ const styles = StyleSheet.create({
   headerRightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 100,
   },
   logoutText: {
     fontSize: 16,

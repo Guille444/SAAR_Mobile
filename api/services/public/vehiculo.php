@@ -1,150 +1,148 @@
 <?php
-// Se incluye la clase del modelo.
+// Incluye las clases de datos para vehículos, marcas y modelos.
 require_once('../../models/data/vehiculo_data.php');
-
-// Se comprueba si existe una acción a realizar, de lo contrario se finaliza el script con un mensaje de error.
+// Verifica si se ha especificado una acción a realizar.
 if (isset($_GET['action'])) {
-    // Se crea una sesión o se reanuda la actual para poder utilizar variables de sesión en el script.
+    // Inicia la sesión.
     session_start();
-    // Se instancia la clase correspondiente.
+    // Crea instancias de las clases de datos.
     $vehiculo = new VehiculoData;
-    // Se declara e inicializa un arreglo para guardar el resultado que retorna la API.
-    $result = array('status' => 0, 'session' => 0, 'message' => null, 'error' => null, 'exception' => null, 'username' => null);
-    // Se verifica si existe una sesión iniciada como cliente para realizar las acciones correspondientes.
+    // Inicializa un array para almacenar los resultados.
+    $result = array('status' => 0, 'session' => 0, 'message' => null, 'error' => null, 'exception' => null);
+    // Verifica si el usuario ha iniciado sesión.
     if (isset($_SESSION['idCliente'])) {
-        $result['session'] = 1;
-        // Se compara la acción a realizar cuando un cliente ha iniciado sesión.
+        $result['session'] = 1; // Indica que la sesión está activa.
+        // Leer el cuerpo de la solicitud JSON
+        $data = json_decode(file_get_contents('php://input'), true);
+        // Procesa la acción solicitada.
         switch ($_GET['action']) {
+                // Acción para buscar vehículos según un criterio.
             case 'searchRows':
                 if (!Validator::validateSearch($_POST['search'])) {
-                    $result['error'] = Validator::getSearchError();
-                } elseif ($result['dataset'] = $cliente->searchRows()) {
-                    $result['status'] = 1;
+                    $result['error'] = Validator::getSearchError(); // Error de validación.
+                } elseif ($result['dataset'] = $vehiculo->searchRows()) {
+                    $result['status'] = 1; // Éxito en la búsqueda.
                     $result['message'] = 'Existen ' . count($result['dataset']) . ' coincidencias';
                 } else {
-                    $result['error'] = 'No hay coincidencias';
+                    $result['error'] = 'No hay coincidencias'; // No se encontraron resultados.
                 }
                 break;
+                // Acción para crear un nuevo vehículo.
             case 'createRow':
-                $_POST = Validator::validateForm($_POST);
-                if (
-                    !$vehiculo->setModelo($_POST['modeloVehiculo']) or
-                    !$vehiculo->setPlaca($_POST['placaVehiculo']) or
-                    !$vehiculo->setAño($_POST['anioVehiculo']) or
-                    !$vehiculo->setColor($_POST['colorVehiculo']) or
-                    !$vehiculo->setVim($_POST['vimVehiculo']) or
-                    !$vehiculo->setMarca($_POST['marcaVehiculo'])
-                ) {
-                    $result['error'] = $vehiculo->getDataError();
-                } elseif ($vehiculo->createRow()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'vehiculo agregado correctamente';
+                if (!$data || !isset($data['id_marca']) || !isset($data['id_modelo']) || !isset($data['año']) || !isset($data['placa']) || !isset($data['color']) || !isset($data['vin'])) {
+                    $result['error'] = 'Datos incompletos';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al agregar el vehiculo';
+                    // Asignar los valores a las propiedades del objeto
+                    if (
+                        !$vehiculo->setIdMarca($data['id_marca']) ||
+                        !$vehiculo->setIdModelo($data['id_modelo']) ||
+                        !$vehiculo->setPlaca($data['placa']) ||
+                        !$vehiculo->setColor($data['color']) ||
+                        !$vehiculo->setVin($data['vin']) ||
+                        !$vehiculo->setAño($data['año'])
+                    ) {
+                        $result['error'] = 'Datos incorrectos';
+                    } elseif ($vehiculo->createRow()) {
+                        $result['status'] = 1;
+                        $result['message'] = 'Vehículo registrado correctamente';
+                    } else {
+                        $result['error'] = 'Ocurrió un problema al registrar el vehículo';
+                    }
                 }
+                break;
+                // Acción para leer todos los vehículos.
             case 'readAll':
                 if ($result['dataset'] = $vehiculo->readAll()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Existen ' . count($result['dataset']) . ' registros';
+                    $result['status'] = 1; // Éxito en la lectura.
+                    $result['message'] = 'Existen ' . count($result['dataset']) . ' vehículos registrados';
                 } else {
-                    $result['error'] = 'No existen clientees registrados';
+                    $result['error'] = 'No existen vehículos registrados'; // No hay vehículos.
                 }
                 break;
-
+                // Acción para leer un vehículo específico por ID.
             case 'readOne':
-                if (!$cliente->setId($_POST['idCliente'])) {
-                    $result['error'] = 'cliente incorrecto';
-                } elseif ($result['dataset'] = $cliente->readOne()) {
-                    $result['status'] = 1;
+                if (!$vehiculo->setId($_POST['id_vehiculo'])) {
+                    $result['error'] = 'Vehículo incorrecto'; // ID de vehículo incorrecto.
+                } elseif ($result['dataset'] = $vehiculo->readOne()) {
+                    $result['status'] = 1; // Éxito en la lectura del vehículo.
                 } else {
-                    $result['error'] = 'cliente inexistente';
+                    $result['error'] = 'Vehículo inexistente'; // Vehículo no encontrado.
                 }
                 break;
+                // Acción para actualizar un vehículo existente.
             case 'updateRow':
-                $_POST = Validator::validateForm($_POST);
+                $_POST = Validator::validateForm($_POST); // Valida los datos del formulario.
                 if (
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['direccionCliente']) or
-                    !$cliente->setCorreo($_POST['telefonoCliente']) or
-                    !$cliente->setContacto($_POST['correoCliente'])
+                    !$vehiculo->setId($_POST['id_vehiculo']) or
+                    !$vehiculo->setIdCliente($_POST['id_cliente']) or
+                    !$vehiculo->setIdMarca($_POST['id_marca']) or
+                    !$vehiculo->setIdModelo($_POST['id_modelo']) or
+                    !$vehiculo->setPlaca($_POST['placa']) or
+                    !$vehiculo->setColor($_POST['color']) or
+                    !$vehiculo->setVin($_POST['vin']) or
+                    !$vehiculo->setAño($_POST['año'])
                 ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($cliente->updateRow()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'cliente modificado correctamente';
+                    $result['error'] = 'Datos incorrectos'; // Error en los datos del formulario.
+                } elseif ($vehiculo->updateRow()) {
+                    $result['status'] = 1; // Éxito en la actualización.
+                    $result['message'] = 'Vehículo actualizado correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al modificar el cliente';
-                }
-
-                break;
-            case 'getUser':
-                if (isset($_SESSION['aliasCliente'])) {
-                    $result['status'] = 1;
-                    $result['username'] = $_SESSION['aliasCliente'];
-                } else {
-                    $result['error'] = 'Alias de usuario indefinido';
+                    $result['error'] = 'Ocurrió un problema al actualizar el vehículo'; // Error en la actualización.
                 }
                 break;
-            case 'logOut':
-                if (session_destroy()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Sesión eliminada correctamente';
+                // Acción para eliminar un vehículo.
+            case 'deleteRow':
+                if (!$vehiculo->setId($_POST['id_vehiculo'])) {
+                    $result['error'] = 'Vehículo incorrecto'; // ID de vehículo incorrecto.
+                } elseif ($vehiculo->deleteRow()) {
+                    $result['status'] = 1; // Éxito en la eliminación.
+                    $result['message'] = 'Vehículo eliminado correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al cerrar la sesión';
+                    $result['error'] = 'Ocurrió un problema al eliminar el vehículo'; // Error en la eliminación.
                 }
                 break;
-            case 'readProfile':
-                if ($result['dataset'] = $cliente->readProfile()) {
-                    $result['status'] = 1;
+                // Acción para obtener todas las marcas.
+            case 'getMarcas':
+                if ($result['dataset'] = $vehiculo->getAllMarcas()) {
+                    $result['status'] = 1; // Éxito en la obtención de marcas.
+                    $result['message'] = 'Marcas obtenidas correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al leer el perfil';
+                    $result['error'] = 'No se encontraron marcas'; // No se encontraron marcas.
                 }
                 break;
-            case 'editProfile':
-                $_POST = Validator::validateForm($_POST);
-                if (
-                    !$cliente->setId($_SESSION['idCliente']) ||  // Asegúrate de establecer el ID del cliente
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['aliasCliente']) or
-                    !$cliente->setContacto($_POST['contactoCliente']) or
-                    !$cliente->setCorreo($_POST['correoCliente'])
-                ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($cliente->editProfile()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Perfil modificado correctamente';
-                    $_SESSION['correoCliente'] = $_POST['correoCliente'];
+                // Acción para obtener todos los modelos.
+            case 'getModelos':
+                if ($result['dataset'] = $vehiculo->getAllModelos()) {
+                    $result['status'] = 1; // Éxito en la obtención de modelos.
+                    $result['message'] = 'Modelos obtenidos correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al modificar el perfil';
+                    $result['error'] = 'No se encontraron modelos'; // No se encontraron modelos.
                 }
                 break;
-            case 'changePassword':
-                $_POST = Validator::validateForm($_POST);
-                if (!$cliente->checkPassword($_POST['claveActual'])) {
-                    $result['error'] = 'Contraseña actual incorrecta';
-                } elseif ($_POST['claveNueva'] != $_POST['confirmarClave']) {
-                    $result['error'] = 'Confirmación de contraseña diferente';
-                } elseif (!$cliente->setClave($_POST['claveNueva'])) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($cliente->changePassword()) {
+                // Acción para obtener modelos por marca
+            case 'getModelosByMarca':
+                if (!isset($_GET['id_marca'])) {
+                    $result['error'] = 'Marca no especificada';
+                } elseif ($result['dataset'] = $vehiculo->getModelosByMarca($_GET['id_marca'])) {
                     $result['status'] = 1;
-                    $result['message'] = 'Contraseña cambiada correctamente';
+                    $result['message'] = 'Modelos obtenidos correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al cambiar la contraseña';
+                    $result['error'] = 'No se encontraron modelos';
                 }
                 break;
             default:
-                $result['error'] = 'Acción no disponible dentro de la sesión';
+                $result['error'] = 'Acción no disponible dentro de la sesión'; // Acción no permitida.
         }
-    } 
-    // Se obtiene la excepción del servidor de base de datos por si ocurrió un problema.
+    } else {
+        $result['error'] = 'Debe iniciar sesión para realizar esta acción'; // El usuario no ha iniciado sesión.
+    }
+    // Captura cualquier excepción en la base de datos.
     $result['exception'] = Database::getException();
-    // Se indica el tipo de contenido a mostrar y su respectivo conjunto de caracteres.
+    // Define el tipo de contenido como JSON.
     header('Content-type: application/json; charset=utf-8');
-    // Se imprime el resultado en formato JSON y se retorna al controlador.
+    // Envía la respuesta en formato JSON.
     print(json_encode($result));
 } else {
+    // Respuesta en caso de que no se especifique ninguna acción.
     print(json_encode('Recurso no disponible'));
 }

@@ -1,15 +1,22 @@
 <?php
-// Se incluye la clase del modelo.
-require_once('../../models/data/cliente_data.php');
 
-// Se comprueba si existe una acción a realizar, de lo contrario se finaliza el script con un mensaje de error.
+// Asegúrate de que $data esté siendo inicializada correctamente
+$data = json_decode(file_get_contents('php://input'), true);
+// Verifica si $data es null y maneja el error
+if (is_null($data)) {
+    echo json_encode(['status' => 0, 'session' => 1, 'message' => null, 'error' => 'Datos incompletos o inválidos', 'exception' => null]);
+    exit;
+}
+// Se incluye la clase del modelo.
+require_once('../../models/data/citas_data.php');
+// Se comprueba si existe una acción a realizar.
 if (isset($_GET['action'])) {
-    // Se crea una sesión o se reanuda la actual para poder utilizar variables de sesión en el script.
+    // Se crea una sesión o se reanuda la actual para utilizar variables de sesión en el script.
     session_start();
     // Se instancia la clase correspondiente.
-    $cliente = new ClienteData;
+    $citas = new CitasData;
     // Se declara e inicializa un arreglo para guardar el resultado que retorna la API.
-    $result = array('status' => 0, 'session' => 0, 'message' => null, 'error' => null, 'exception' => null, 'username' => null);
+    $result = array('status' => 0, 'session' => 0, 'message' => null, 'error' => null, 'exception' => null);
     // Se verifica si existe una sesión iniciada como cliente para realizar las acciones correspondientes.
     if (isset($_SESSION['idCliente'])) {
         $result['session'] = 1;
@@ -18,122 +25,98 @@ if (isset($_GET['action'])) {
             case 'searchRows':
                 if (!Validator::validateSearch($_POST['search'])) {
                     $result['error'] = Validator::getSearchError();
-                } elseif ($result['dataset'] = $cliente->searchRows()) {
+                } else {
+                    $result['dataset'] = $citas->searchRows($_POST['search']);
                     $result['status'] = 1;
                     $result['message'] = 'Existen ' . count($result['dataset']) . ' coincidencias';
-                } else {
-                    $result['error'] = 'No hay coincidencias';
                 }
                 break;
             case 'createRow':
-                $_POST = Validator::validateForm($_POST);
+                file_put_contents('php://stderr', print_r($data, TRUE)); // Log de los datos recibidos
+
                 if (
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['aliasCliente']) or
-                    !$cliente->setContacto($_POST['contactoCliente']) or
-                    !$cliente->setCorreo($_POST['correoCliente']) or
-                    !$cliente->setClave($_POST['claveCliente'])
+                    !isset($data['id_vehiculo']) || !is_numeric($data['id_vehiculo']) ||
+                    !isset($data['fecha_cita']) || empty($data['fecha_cita']) ||
+                    !isset($data['id_servicio']) || !is_array($data['id_servicio']) || empty($data['id_servicio'])
                 ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($_POST['claveCliente'] != $_POST['confirmarClave']) {
-                    $result['error'] = 'Contraseñas diferentes';
-                } elseif ($cliente->createRow()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'cliente creado correctamente';
+                    $result['error'] = 'Datos incompletos o inválidos';
+                    file_put_contents('php://stderr', "Datos incompletos o inválidos: " . json_encode($data) . "\n", FILE_APPEND);
                 } else {
-                    $result['error'] = 'Ocurrió un problema al crear el administrador';
+                    $citas->setIdVehiculo((int)$data['id_vehiculo']);
+                    $citas->setFechaCita($data['fecha_cita']);
+                    $citas->setIdCliente($_SESSION['idCliente']);
+                    $result['status'] = $citas->createRow($data['id_servicio']);
+                    if ($result['status']) {
+                        $result['message'] = 'Cita creada correctamente';
+                    } else {
+                        $result['error'] = 'Ocurrió un problema al crear la cita';
+                    }
                 }
+                break;
             case 'readAll':
-                if ($result['dataset'] = $cliente->readAll()) {
+                if ($result['dataset'] = $citas->readAll()) {
                     $result['status'] = 1;
                     $result['message'] = 'Existen ' . count($result['dataset']) . ' registros';
                 } else {
-                    $result['error'] = 'No existen clientees registrados';
+                    $result['error'] = 'No existen citas registradas';
                 }
                 break;
             case 'readOne':
-                if (!$cliente->setId($_POST['idCliente'])) {
-                    $result['error'] = 'cliente incorrecto';
-                } elseif ($result['dataset'] = $cliente->readOne()) {
+                if (!$citas->setId($_POST['id_cita'])) {
+                    $result['error'] = 'Cita incorrecta';
+                } elseif ($result['dataset'] = $citas->readOne()) {
                     $result['status'] = 1;
                 } else {
-                    $result['error'] = 'cliente inexistente';
+                    $result['error'] = 'Cita inexistente';
                 }
                 break;
             case 'updateRow':
                 $_POST = Validator::validateForm($_POST);
                 if (
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['direccionCliente']) or
-                    !$cliente->setCorreo($_POST['telefonoCliente']) or
-                    !$cliente->setContacto($_POST['correoCliente'])
+                    !$citas->setId($_POST['id_cita']) ||
+                    !$citas->setIdVehiculo($_POST['id_vehiculo']) ||
+                    !$citas->setFechaCita($_POST['fecha_cita']) ||
+                    !isset($_POST['id_servicio']) || empty($_POST['id_servicio']) ||
+                    !$citas->setEstado($_POST['estado_cita'])
                 ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($cliente->updateRow()) {
+                    $result['error'] = 'Datos incompletos o inválidos';
+                } elseif ($citas->updateRow($_POST['id_servicio'])) {
                     $result['status'] = 1;
-                    $result['message'] = 'cliente modificado correctamente';
+                    $result['message'] = 'Cita modificada correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al modificar el cliente';
-                }
-
-                break;
-            case 'getUser':
-                if (isset($_SESSION['aliasCliente'])) {
-                    $result['status'] = 1;
-                    $result['username'] = $_SESSION['aliasCliente'];
-                } else {
-                    $result['error'] = 'Alias de usuario indefinido';
+                    $result['error'] = 'Ocurrió un problema al modificar la cita';
                 }
                 break;
-            case 'logOut':
-                if (session_destroy()) {
+            case 'deleteRow':
+                if (!$citas->setId($_POST['id_cita'])) {
+                    $result['error'] = 'Cita incorrecta';
+                } elseif ($citas->deleteRow()) {
                     $result['status'] = 1;
-                    $result['message'] = 'Sesión eliminada correctamente';
+                    $result['message'] = 'Cita eliminada correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al cerrar la sesión';
+                    $result['error'] = 'Ocurrió un problema al eliminar la cita';
                 }
                 break;
-            case 'readProfile':
-                if ($result['dataset'] = $cliente->readProfile()) {
+            case 'getServices':
+                // Obtener todos los servicios
+                if ($result['dataset'] = $citas->getServices()) {
                     $result['status'] = 1;
+                    $result['message'] = 'Servicios cargados correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al leer el perfil';
+                    $result['error'] = 'No existen servicios registrados';
                 }
                 break;
-            case 'editProfile':
-                $_POST = Validator::validateForm($_POST);
-                if (
-                    !$cliente->setId($_SESSION['idCliente']) ||  // Asegúrate de establecer el ID del cliente
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['aliasCliente']) or
-                    !$cliente->setContacto($_POST['contactoCliente']) or
-                    !$cliente->setCorreo($_POST['correoCliente'])
-                ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($cliente->editProfile()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Perfil modificado correctamente';
-                    $_SESSION['correoCliente'] = $_POST['correoCliente'];
+            case 'readAllByClient':
+                if (isset($_SESSION['idCliente'])) {
+                    try {
+                        $result['dataset'] = $citas->readAllByClient();  // Asegúrate de que es un arreglo
+                        $result['status'] = 1;
+                        $result['message'] = 'Vehículos cargados correctamente';
+                    } catch (Exception $e) {
+                        $result['error'] = $e->getMessage();
+                    }
                 } else {
-                    $result['error'] = 'Ocurrió un problema al modificar el perfil';
-                }
-                break;
-            case 'changePassword':
-                $_POST = Validator::validateForm($_POST);
-                if (!$cliente->checkPassword($_POST['claveActual'])) {
-                    $result['error'] = 'Contraseña actual incorrecta';
-                } elseif ($_POST['claveNueva'] != $_POST['confirmarClave']) {
-                    $result['error'] = 'Confirmación de contraseña diferente';
-                } elseif (!$cliente->setClave($_POST['claveNueva'])) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($cliente->changePassword()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Contraseña cambiada correctamente';
-                } else {
-                    $result['error'] = 'Ocurrió un problema al cambiar la contraseña';
+                    $result['error'] = 'No se ha definido el ID del cliente.';
                 }
                 break;
             default:
@@ -141,54 +124,15 @@ if (isset($_GET['action'])) {
         }
     } else {
         // Se compara la acción a realizar cuando el cliente no ha iniciado sesión.
-        switch ($_GET['action']) {
-            case 'readUsers':
-                if ($cliente->readAll()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Debe autenticarse para ingresar';
-                } else {
-                    $result['error'] = 'Debe crear un cliente para comenzar';
-                }
-                break;
-            case 'signUp':
-                $_POST = Validator::validateForm($_POST);
-                if (
-                    !$cliente->setNombre($_POST['nombreCliente']) or
-                    !$cliente->setApellido($_POST['apellidoCliente']) or
-                    !$cliente->setAlias($_POST['aliasCliente']) or
-                    !$cliente->setContacto($_POST['contactoCliente']) or
-                    !$cliente->setCorreo($_POST['correoCliente']) or
-                    !$cliente->setClave($_POST['claveCliente'])
-                ) {
-                    $result['error'] = $cliente->getDataError();
-                } elseif ($_POST['claveCliente'] != $_POST['confirmarClave']) {
-                    $result['error'] = 'Contraseñas diferentes';
-                } elseif ($cliente->createRow()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Cuenta registrada correctamente';
-                } else {
-                    $result['error'] = 'Ocurrió un problema al registrar la cuenta';
-                }
-                break;
-            case 'logIn':
-                $_POST = Validator::validateForm($_POST);
-                if (!$cliente->checkUser($_POST['alias'], $_POST['clave'])) {
-                    $result['error'] = 'Datos incorrectos';
-                } elseif ($cliente->checkStatus()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Autenticación correcta';
-                } else {
-                    $result['error'] = 'La cuenta ha sido desactivada';
-                }
-                break;
-            default:
-                $result['error'] = 'Acción no disponible fuera de la sesión';
-        }
+        $result['error'] = 'Debe iniciar sesión para realizar esta acción';
     }
+
     // Se obtiene la excepción del servidor de base de datos por si ocurrió un problema.
     $result['exception'] = Database::getException();
+
     // Se indica el tipo de contenido a mostrar y su respectivo conjunto de caracteres.
     header('Content-type: application/json; charset=utf-8');
+
     // Se imprime el resultado en formato JSON y se retorna al controlador.
     print(json_encode($result));
 } else {
