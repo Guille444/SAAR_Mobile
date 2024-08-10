@@ -16,50 +16,45 @@ export default function Vehiculo({ navigation }) {
   const [matricula, setMatricula] = useState('');
   const [color, setColor] = useState('');
   const [vin, setVin] = useState('');
-  const [loadingModelos, setLoadingModelos] = useState(false);
-  const [loadingMarcas, setLoadingMarcas] = useState(false);
-  const [errorModelos, setErrorModelos] = useState('');
-  const [errorMarcas, setErrorMarcas] = useState('');
-  const [errorMatricula, setErrorMatricula] = useState('');
+  const [loading, setLoading] = useState({ modelos: false, marcas: false });
+  const [errors, setErrors] = useState({ modelos: '', marcas: '', matricula: '' });
   const [alertConfig, setAlertConfig] = useState({
     show: false,
     title: '',
     message: '',
     confirmText: 'OK',
-    onConfirm: () => { },
+    onConfirm: () => {},
   });
 
-  const alertShown = useRef(false); // Using useRef for the flag
+  const alertShown = useRef(false);
 
-  const fetchData = async (endpoint, params, setData, setError, setLoading) => {
-    setLoading(true);
+  const fetchData = async (endpoint, params, setData, setLoadingKey, setErrorKey) => {
+    setLoading(prevState => ({ ...prevState, [setLoadingKey]: true }));
     try {
       const queryParams = params ? `&${new URLSearchParams(params)}` : '';
       const response = await fetch(`${ip}/services/public/vehiculo.php?action=${endpoint}${queryParams}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+        headers: { 'Content-Type': 'application/json' },
       });
       const data = await response.json();
       if (data.status === 0) {
-        setError(data.error || `No se encontraron ${endpoint}`);
+        setErrors(prevState => ({ ...prevState, [setErrorKey]: data.error || `No se encontraron ${endpoint}` }));
         setData([]);
       } else {
         setData(data.dataset || []);
-        setError('');
+        setErrors(prevState => ({ ...prevState, [setErrorKey]: '' }));
       }
     } catch (error) {
-      setError(`Error al obtener ${endpoint}`);
+      setErrors(prevState => ({ ...prevState, [setErrorKey]: `Error al obtener ${endpoint}` }));
       console.error(`Error de red ${endpoint}:`, error);
       setData([]);
     } finally {
-      setLoading(false);
+      setLoading(prevState => ({ ...prevState, [setLoadingKey]: false }));
     }
   };
 
   const fetchMarcas = useCallback(async () => {
-    await fetchData('getMarcas', null, setMarcas, setErrorMarcas, setLoadingMarcas);
+    await fetchData('getMarcas', null, setMarcas, 'marcas', 'marcas');
   }, [ip]);
 
   const fetchModelos = useCallback(async (marcaSeleccionada) => {
@@ -67,8 +62,7 @@ export default function Vehiculo({ navigation }) {
       setModelos([]);
       return;
     }
-    console.log(`Fetching modelos for marca ID: ${marcaSeleccionada}`);
-    await fetchData('getModelosByMarca', { id_marca: marcaSeleccionada }, setModelos, setErrorModelos, setLoadingModelos);
+    await fetchData('getModelosByMarca', { id_marca: marcaSeleccionada }, setModelos, 'modelos', 'modelos');
   }, [ip]);
 
   useEffect(() => {
@@ -100,18 +94,16 @@ export default function Vehiculo({ navigation }) {
     }
 
     if (!validarMatricula(matricula)) {
-      setErrorMatricula('La matrícula debe seguir el formato especificado.');
+      setErrors(prevState => ({ ...prevState, matricula: 'La matrícula debe seguir el formato especificado.' }));
       return;
     }
 
-    setErrorMatricula('');
+    setErrors(prevState => ({ ...prevState, matricula: '' }));
 
     try {
       const response = await fetch(`${ip}/services/public/vehiculo.php?action=createRow`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id_marca: marca,
           id_modelo: modelo,
@@ -122,40 +114,31 @@ export default function Vehiculo({ navigation }) {
         })
       });
 
-      const text = await response.text(); // Obtener la respuesta como texto
-      console.log('Response text:', text); // Imprimir la respuesta para depuración
+      const text = await response.text();
+      console.log('Response text:', text);
 
       try {
-        const data = JSON.parse(text); // Intentar analizar el texto como JSON
+        const data = JSON.parse(text);
         if (data.status === 1) {
-          if (!alertShown.current) {
-            showAlert('Registro', 'Vehículo registrado exitosamente', () => {
-              clearFields(); // Limpiar los campos después del registro exitoso
-              alertShown.current = false; // Reset the flag after successful alert
-            });
-          }
+          showAlert('Registro', 'Vehículo registrado exitosamente', () => {
+            clearFields();
+          });
         } else {
-          if (!alertShown.current) {
-            showAlert('Error', data.error || 'Error al registrar el vehículo');
-          }
+          showAlert('Error', data.error || 'Error al registrar el vehículo');
         }
       } catch (jsonError) {
-        if (!alertShown.current) {
-          showAlert('Error', 'Error al procesar la respuesta del servidor');
-        }
+        showAlert('Error', 'Error al procesar la respuesta del servidor');
         console.error('Error al analizar JSON:', jsonError);
       }
 
     } catch (error) {
-      if (!alertShown.current) {
-        showAlert('Error', 'Error al conectar con el servidor');
-      }
+      showAlert('Error', 'Error al conectar con el servidor');
       console.error('Error en el registro del vehículo:', error);
     }
   };
 
   const showAlert = (title, message, onConfirm) => {
-    setAlertConfig(prevConfig => ({
+    setAlertConfig({
       show: true,
       title,
       message,
@@ -163,9 +146,9 @@ export default function Vehiculo({ navigation }) {
       onConfirm: () => {
         setAlertConfig(prevConfig => ({ ...prevConfig, show: false }));
         if (onConfirm) onConfirm();
-        alertShown.current = true; // Set the flag to true when showing the alert
+        alertShown.current = false;
       }
-    }));
+    });
   };
 
   const clearFields = () => {
@@ -181,12 +164,11 @@ export default function Vehiculo({ navigation }) {
     useCallback(() => {
       return () => {
         clearFields();
-        alertShown.current = false; // Reset the flag when focusing out
+        alertShown.current = false;
       };
     }, [])
   );
 
-  // Función para navegar hacia la pantalla de vehiculos registrados
   const irVehiculos = async () => {
     navigation.navigate('VehiculosRegistrados');
   };
@@ -196,7 +178,7 @@ export default function Vehiculo({ navigation }) {
       <Text style={styles.title}>Registrar vehículo</Text>
 
       <View style={styles.pickerContainer}>
-        {loadingMarcas ? (
+        {loading.marcas ? (
           <ActivityIndicator size="large" color="#007bff" />
         ) : (
           <>
@@ -210,13 +192,13 @@ export default function Vehiculo({ navigation }) {
                 <Picker.Item key={item.id_marca} label={item.marca_vehiculo} value={item.id_marca} />
               ))}
             </Picker>
-            {errorMarcas ? <Text style={styles.error}>{errorMarcas}</Text> : null}
+            {errors.marcas ? <Text style={styles.error}>{errors.marcas}</Text> : null}
           </>
         )}
       </View>
 
       <View style={styles.pickerContainer}>
-        {loadingModelos ? (
+        {loading.modelos ? (
           <ActivityIndicator size="large" color="#007bff" />
         ) : (
           <>
@@ -224,67 +206,77 @@ export default function Vehiculo({ navigation }) {
               selectedValue={modelo}
               style={styles.picker}
               onValueChange={(itemValue) => setModelo(itemValue)}
+              enabled={marca !== ''}
             >
               <Picker.Item label="Seleccione un modelo" value="" />
               {modelos.map((item) => (
                 <Picker.Item key={item.id_modelo} label={item.modelo_vehiculo} value={item.id_modelo} />
               ))}
             </Picker>
-            {errorModelos ? <Text style={styles.error}>{errorModelos}</Text> : null}
+            {errors.modelos ? <Text style={styles.error}>{errors.modelos}</Text> : null}
           </>
         )}
       </View>
+
+      {/* Campos adicionales */}
+      <TextInput
+        style={styles.input}
+        placeholder="Año"
+        value={año}
+        onChangeText={(text) => setAño(text)}
+      />
       <TextInput
         style={styles.input}
         placeholder="Matrícula"
         value={matricula}
-        onChangeText={setMatricula}
+        onChangeText={(text) => setMatricula(text)}
+        onBlur={() => {
+          if (!validarMatricula(matricula)) {
+            setErrors(prevState => ({ ...prevState, matricula: 'La matrícula debe seguir el formato especificado.' }));
+          } else {
+            setErrors(prevState => ({ ...prevState, matricula: '' }));
+          }
+        }}
       />
-      {errorMatricula ? <Text style={styles.error}>{errorMatricula}</Text> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Año"
-        keyboardType="numeric"
-        value={año}
-        onChangeText={setAño}
-      />
+      {errors.matricula ? <Text style={styles.error}>{errors.matricula}</Text> : null}
+
       <TextInput
         style={styles.input}
         placeholder="Color"
         value={color}
-        onChangeText={setColor}
+        onChangeText={(text) => setColor(text)}
       />
       <TextInput
         style={styles.input}
         placeholder="VIN"
         value={vin}
-        onChangeText={setVin}
+        onChangeText={(text) => setVin(text)}
       />
-      <TouchableOpacity style={styles.button} onPress={registrarVehiculo}>
-        <Text style={styles.buttonText}>REGISTRAR VEHICULO</Text>
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={registrarVehiculo}
+      >
+        <Text style={styles.buttonText}>Registrar</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button2} onPress={irVehiculos}>
-        <Text style={styles.buttonText}>VER MIS VEHICULOS</Text>
+
+      <TouchableOpacity
+        style={[styles.button, styles.secondaryButton]}
+        onPress={irVehiculos}
+      >
+        <Text style={[styles.buttonText, styles.secondaryButtonText]}>Ver vehículos registrados</Text>
       </TouchableOpacity>
 
       <AwesomeAlert
         show={alertConfig.show}
         title={alertConfig.title}
         message={alertConfig.message}
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
         showConfirmButton={true}
         confirmText={alertConfig.confirmText}
-        confirmButtonColor="gray"
-        onConfirmPressed={() => {
-          console.log(`Alert confirmed with title: ${alertConfig.title}`);
-          setAlertConfig(prevConfig => ({ ...prevConfig, show: false }));
-          if (alertConfig.onConfirm) alertConfig.onConfirm();
-          alertShown.current = false; // Reset the flag on confirm
-        }}
-        contentContainerStyle={styles.alertContentContainer}
-        titleStyle={styles.alertTitle}
-        messageStyle={styles.alertMessage}
-        confirmButtonStyle={styles.alertConfirmButton}
-        confirmButtonTextStyle={styles.alertConfirmButtonText}
+        confirmButtonColor="#007bff"
+        onConfirmPressed={alertConfig.onConfirm}
       />
     </ScrollView>
   );
@@ -293,89 +285,60 @@ export default function Vehiculo({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#f8f9fa',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-  },
-  input: {
-    backgroundColor: '#f0f0f0', // Fondo gris claro similar al botón
-    width: '100%',
-    height: 50,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    marginBottom: 12,
-    paddingLeft: 10,
-    fontSize: 16,
-    borderRadius: 8, // Bordes redondeados para el input
-    backgroundColor: '#f9f9f9', // Fondo claro para los campos de entrada
+    textAlign: 'center',
   },
   pickerContainer: {
-    width: '100%',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   picker: {
     height: 50,
     width: '100%',
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 4,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+  },
+  input: {
+    height: 50,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
   },
   button: {
-    width: '100%',
-    padding: 12,
-    backgroundColor: '#000',
-    borderRadius: 4,
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  button2: {
-    width: '100%',
-    padding: 12,
-    backgroundColor: '#FEAF00',
-    borderRadius: 4,
-    alignItems: 'center',
-    marginBottom: 16,
+    backgroundColor: '#007bff',
+    paddingVertical: 15,
+    borderRadius: 8,
+    marginBottom: 15,
   },
   buttonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 16,
-    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  secondaryButton: {
+    backgroundColor: '#6c757d',
+  },
+  secondaryButtonText: {
+    color: '#ffffff',
+  },
+  error: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
   },
   headerTitleContainer: {
-    flexDirection: 'row',
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-  },
-  error: {
-    color: 'red',
-    marginTop: 4,
-  },
-  alertContentContainer: {
-    borderRadius: 10,
-    padding: 20,
-  },
-  alertTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  alertMessage: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  alertConfirmButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  alertConfirmButtonText: {
-    fontSize: 16,
   },
 });

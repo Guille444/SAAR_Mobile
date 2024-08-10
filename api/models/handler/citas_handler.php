@@ -179,4 +179,17 @@ class CitasHandler
         WHERE v.id_cliente = ?;";
         return Database::getRows($sql, [$_SESSION['idCliente']]);  // Asegúrate de que esto devuelve un array
     }
+
+    public function readAllByClientMobile()
+    {
+        $sql = 'SELECT c.fecha_cita, s.nombre_servicio AS "servicios",
+        v.id_vehiculo, CONCAT(m.marca_vehiculo, " ", mo.modelo_vehiculo, " ", v.año_vehiculo) AS vehiculo FROM cita_servicios cs 
+        INNER JOIN citas c ON c.id_cita = cs.id_cita
+        INNER JOIN servicios s ON s.id_servicio = cs.id_servicio
+        INNER JOIN vehiculos v ON v.id_vehiculo = c.id_vehiculo
+        INNER JOIN marcas m ON v.id_marca = m.id_marca
+        INNER JOIN modelos mo ON v.id_modelo = mo.id_modelo
+        WHERE v.id_cliente = ?;';
+        return Database::getRows($sql, [$_SESSION['idCliente']]);  // Asegúrate de que esto devuelve un array
+    }
 }
