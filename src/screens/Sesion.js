@@ -22,7 +22,7 @@ export default function Sesion({ navigation }) {
     const showAlertWithMessageWithMessage = (message, showProgressIndicator = false) => {
         setAlertMessage(message);
         setShowProgress(showProgressIndicator);
-        setshowAlertWithMeshssage(true);
+        setshowAlertWithMessage(true);
     };
 
     // Efecto para cargar los detalles del carrito al cargar la pantalla o al enfocarse en ella

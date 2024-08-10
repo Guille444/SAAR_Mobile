@@ -51,14 +51,23 @@ if (isset($_GET['action'])) {
                 }
                 break;
                 // Acción para leer todos los vehículos.
-            case 'readAll':
-                if ($result['dataset'] = $vehiculo->readAll()) {
+            case 'readAllCliente':
+                if ($result['dataset'] = $vehiculo->readAllCliente()) {
                     $result['status'] = 1; // Éxito en la lectura.
                     $result['message'] = 'Existen ' . count($result['dataset']) . ' vehículos registrados';
                 } else {
                     $result['error'] = 'No existen vehículos registrados'; // No hay vehículos.
                 }
                 break;
+
+                case 'readAll':
+                    if ($result['dataset'] = $vehiculo->readAll()) {
+                        $result['status'] = 1; // Éxito en la lectura.
+                        $result['message'] = 'Existen ' . count($result['dataset']) . ' vehículos registrados';
+                    } else {
+                        $result['error'] = 'No existen vehículos registrados'; // No hay vehículos.
+                    }
+                    break;
                 // Acción para leer un vehículo específico por ID.
             case 'readOne':
                 if (!$vehiculo->setId($_POST['id_vehiculo'])) {

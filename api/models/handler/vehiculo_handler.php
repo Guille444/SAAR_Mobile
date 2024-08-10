@@ -52,6 +52,20 @@ class VehiculoHandler
         return Database::getRows($sql);
     }
 
+    public function readAllCliente()
+    {
+        $sql = 'SELECT v.id_vehiculo, v.placa_vehiculo, v.color_vehiculo,  v.año_vehiculo, v.vin_motor, m.modelo_vehiculo, 
+            CONCAT(c.nombre_cliente, " ", c.apellido_cliente) AS nombre_completo, ma.marca_vehiculo
+                FROM vehiculos v
+                INNER JOIN modelos m ON v.id_modelo = m.id_modelo
+                INNER JOIN clientes c ON v.id_cliente = c.id_cliente
+                INNER JOIN marcas ma ON v.id_marca = ma.id_marca
+                WHERE v.id_cliente = ?
+                ORDER BY m.modelo_vehiculo;';
+        $params = array($_SESSION['idCliente']);
+        return Database::getRows($sql, $params);
+    }
+
     public function readOne()
     {
         $sql = 'SELECT * FROM vehiculos 
