@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, Image } from 'react-native';
 
-export default function SplashScreen2() {
+export default function SplashScreen() {
   useEffect(() => {
     
   }, []);

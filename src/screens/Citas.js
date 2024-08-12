@@ -10,6 +10,7 @@ import AwesomeAlert from 'react-native-awesome-alerts';
 export default function Citas({ navigation }) {
   const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
 
+  // Estados para manejar datos y mostrar la interfaz
   const [fecha, setFecha] = useState(new Date());
   const [modo, setModo] = useState('date');
   const [mostrar, setMostrar] = useState(false);
@@ -32,6 +33,7 @@ export default function Citas({ navigation }) {
     });
   }, [navigation]);
 
+  // Carga los vehículos y servicios cuando la pantalla se enfoca
   useFocusEffect(
     useCallback(() => {
       cargarVehiculos();
@@ -48,6 +50,7 @@ export default function Citas({ navigation }) {
     }, [])
   );
 
+  // Función para cargar la lista de vehículos
   const cargarVehiculos = async () => {
     try {
       const respuesta = await fetch(`${ip}/services/public/citas.php?action=readAllByClient`, {
@@ -75,6 +78,7 @@ export default function Citas({ navigation }) {
     }
   };
 
+  // Función para cargar la lista de servicios
   const cargarServicios = async () => {
     try {
       const respuesta = await fetch(`${ip}/services/public/citas.php?action=getServices`, {
@@ -113,6 +117,7 @@ export default function Citas({ navigation }) {
     }
   };
 
+  // Función para agendar una cita
   const manejarAgendar = async () => {
     if (!vehiculo) {
       setAlertTitle('Error');
@@ -120,29 +125,29 @@ export default function Citas({ navigation }) {
       setAlertVisible(true);
       return;
     }
-  
+
     if (serviciosSeleccionados.length === 0) {
       setAlertTitle('Error');
       setAlertMessage('Por favor, seleccione al menos un servicio.');
       setAlertVisible(true);
       return;
     }
-  
+
     if (!fecha) {
       setAlertTitle('Error');
       setAlertMessage('Por favor, seleccione una fecha.');
       setAlertVisible(true);
       return;
     }
-  
+
     const cita = {
       id_vehiculo: vehiculo,
       id_servicio: serviciosSeleccionados,
       fecha_cita: fecha.toISOString().split('T')[0],
     };
-  
+
     console.log('Datos enviados:', cita);
-  
+
     try {
       const respuesta = await fetch(`${ip}/services/public/citas.php?action=createRow`, {
         method: 'POST',
@@ -151,18 +156,18 @@ export default function Citas({ navigation }) {
         },
         body: JSON.stringify(cita),
       });
-  
+
       if (!respuesta.ok) {
         throw new Error(`HTTP error! Status: ${respuesta.status}`);
       }
-  
+
       const textoRespuesta = await respuesta.text();
       console.log('Respuesta del servidor en texto:', textoRespuesta);
-  
+
       try {
         const datos = JSON.parse(textoRespuesta);
         console.log('Datos procesados:', datos);
-  
+
         if (datos.status) { // Cambiado para manejar el campo `status` booleano
           setAlertTitle('Éxito');
           setAlertMessage(datos.message || 'Cita agendada con éxito');
@@ -190,7 +195,7 @@ export default function Citas({ navigation }) {
       setAlertVisible(true);
     }
   };
-  
+
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -353,7 +358,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: 4,
     marginBottom: 16,
     paddingHorizontal: 10,
     backgroundColor: '#f9f9f9', // Asegura que el fondo sea blanco

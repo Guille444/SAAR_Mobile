@@ -6,8 +6,9 @@ import * as Constantes from '../../utils/constantes';
 
 export default function Perfil({ navigation }) {
 
-  const ip = Constantes.IP;
+  const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
 
+  // Encabezado del componente
   useEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
@@ -51,6 +52,7 @@ export default function Perfil({ navigation }) {
     correo_cliente: ''
   });
 
+  // Funcion para leer la informacion
   const fetchProfileData = async () => {
     try {
       const response = await fetch(`${ip}/services/public/cliente.php?action=readProfile`, {
@@ -74,6 +76,7 @@ export default function Perfil({ navigation }) {
     }, [])
   );
 
+  // Funcion para cerrar sesion
   const handleLogout = async () => {
     try {
       const response = await fetch(`${ip}/services/public/cliente.php?action=logOut`, {
@@ -109,6 +112,7 @@ export default function Perfil({ navigation }) {
     navigation.navigate('Contrasenia');
   };
 
+  // Funcion para cambiar los datos
   const editProfile = async () => {
     try {
       const formData = new FormData();

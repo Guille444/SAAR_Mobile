@@ -51,65 +51,92 @@ if (isset($_GET['action'])) {
                 }
                 break;
                 // Acción para leer todos los vehículos.
-            case 'readAllCliente':
-                if ($result['dataset'] = $vehiculo->readAllCliente()) {
+            case 'readAll':
+                if ($result['dataset'] = $vehiculo->readAll()) {
                     $result['status'] = 1; // Éxito en la lectura.
                     $result['message'] = 'Existen ' . count($result['dataset']) . ' vehículos registrados';
                 } else {
                     $result['error'] = 'No existen vehículos registrados'; // No hay vehículos.
                 }
                 break;
-
-                case 'readAll':
-                    if ($result['dataset'] = $vehiculo->readAll()) {
-                        $result['status'] = 1; // Éxito en la lectura.
-                        $result['message'] = 'Existen ' . count($result['dataset']) . ' vehículos registrados';
-                    } else {
-                        $result['error'] = 'No existen vehículos registrados'; // No hay vehículos.
-                    }
-                    break;
                 // Acción para leer un vehículo específico por ID.
             case 'readOne':
-                if (!$vehiculo->setId($_POST['id_vehiculo'])) {
-                    $result['error'] = 'Vehículo incorrecto'; // ID de vehículo incorrecto.
-                } elseif ($result['dataset'] = $vehiculo->readOne()) {
-                    $result['status'] = 1; // Éxito en la lectura del vehículo.
-                } else {
-                    $result['error'] = 'Vehículo inexistente'; // Vehículo no encontrado.
+                header('Content-Type: application/json');
+
+                // Obtener los datos del cuerpo de la solicitud
+                $data = json_decode(file_get_contents('php://input'), true);
+
+                if (!isset($data['id_vehiculo'])) {
+                    error_log('ID de vehículo no proporcionado');
+                    $result['status'] = 0;
+                    $result['error'] = 'ID de vehículo no proporcionado';
+                    echo json_encode($result);
+                    exit;
                 }
-                break;
+
+                $id_vehiculo = $data['id_vehiculo'];
+                error_log('ID de vehículo recibido: ' . $id_vehiculo);
+
+                if (!$vehiculo->setId($id_vehiculo)) {
+                    $result['status'] = 0;
+                    $result['error'] = 'Vehículo incorrecto';
+                } elseif ($result['dataset'] = $vehiculo->readOne()) {
+                    $result['status'] = 1;
+                } else {
+                    $result['status'] = 0;
+                    $result['error'] = 'Vehículo inexistente';
+                }
+
+                echo json_encode($result);
+                exit;
                 // Acción para actualizar un vehículo existente.
             case 'updateRow':
-                $_POST = Validator::validateForm($_POST); // Valida los datos del formulario.
+                // Obtener el contenido de la solicitud JSON
+                $input = file_get_contents('php://input');
+                $data = json_decode($input, true); // Decodifica el JSON en un array asociativo
+
                 if (
-                    !$vehiculo->setId($_POST['id_vehiculo']) or
-                    !$vehiculo->setIdCliente($_POST['id_cliente']) or
-                    !$vehiculo->setIdMarca($_POST['id_marca']) or
-                    !$vehiculo->setIdModelo($_POST['id_modelo']) or
-                    !$vehiculo->setPlaca($_POST['placa']) or
-                    !$vehiculo->setColor($_POST['color']) or
-                    !$vehiculo->setVin($_POST['vin']) or
-                    !$vehiculo->setAño($_POST['año'])
+                    !isset($data['id_vehiculo']) ||
+                    !isset($data['id_marca']) ||
+                    !isset($data['id_modelo']) ||
+                    !isset($data['placa']) ||
+                    !isset($data['color']) ||
+                    !isset($data['vin']) ||
+                    !isset($data['año'])
                 ) {
                     $result['error'] = 'Datos incorrectos'; // Error en los datos del formulario.
-                } elseif ($vehiculo->updateRow()) {
-                    $result['status'] = 1; // Éxito en la actualización.
-                    $result['message'] = 'Vehículo actualizado correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al actualizar el vehículo'; // Error en la actualización.
+                    $vehiculo->setId($data['id_vehiculo']);
+                    $vehiculo->setIdMarca($data['id_marca']);
+                    $vehiculo->setIdModelo($data['id_modelo']);
+                    $vehiculo->setPlaca($data['placa']);
+                    $vehiculo->setColor($data['color']);
+                    $vehiculo->setVin($data['vin']);
+                    $vehiculo->setAño($data['año']);
+
+                    if ($vehiculo->updateRow()) {
+                        $result['status'] = 1; // Éxito en la actualización.
+                        $result['message'] = 'Vehículo actualizado correctamente';
+                    } else {
+                        $result['error'] = 'Ocurrió un problema al actualizar el vehículo'; // Error en la actualización.
+                    }
                 }
                 break;
                 // Acción para eliminar un vehículo.
             case 'deleteRow':
-                if (!$vehiculo->setId($_POST['id_vehiculo'])) {
-                    $result['error'] = 'Vehículo incorrecto'; // ID de vehículo incorrecto.
-                } elseif ($vehiculo->deleteRow()) {
-                    $result['status'] = 1; // Éxito en la eliminación.
-                    $result['message'] = 'Vehículo eliminado correctamente';
+                header('Content-Type: application/json');
+                // Verifica si se ha proporcionado el ID del vehículo.
+                if (!isset($_POST['id_vehiculo']) || empty($_POST['id_vehiculo'])) {
+                    echo json_encode(['error' => 'ID de vehículo no proporcionado']);
                 } else {
-                    $result['error'] = 'Ocurrió un problema al eliminar el vehículo'; // Error en la eliminación.
+                    $id_vehiculo = $_POST['id_vehiculo'];
+                    if ($vehiculo->setId($id_vehiculo) && $vehiculo->deleteRow()) {
+                        echo json_encode(['status' => 1, 'message' => 'Vehículo eliminado correctamente']);
+                    } else {
+                        echo json_encode(['error' => $vehiculo->getDataError() ?? 'Ocurrió un problema al eliminar el vehículo']);
+                    }
                 }
-                break;
+                exit;
                 // Acción para obtener todas las marcas.
             case 'getMarcas':
                 if ($result['dataset'] = $vehiculo->getAllMarcas()) {
@@ -137,6 +164,14 @@ if (isset($_GET['action'])) {
                     $result['message'] = 'Modelos obtenidos correctamente';
                 } else {
                     $result['error'] = 'No se encontraron modelos';
+                }
+                break;
+            case 'readByCliente':
+                if ($result['dataset'] = $vehiculo->readByCliente($_SESSION['idCliente'])) {
+                    $result['status'] = 1; // Éxito en la lectura.
+                    $result['message'] = 'Vehículos obtenidos correctamente';
+                } else {
+                    $result['error'] = 'No existen vehículos registrados para este cliente'; // No hay vehículos para este cliente.
                 }
                 break;
             default:

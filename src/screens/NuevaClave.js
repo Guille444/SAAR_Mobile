@@ -4,12 +4,14 @@ import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
 export default function NuevaClave({ navigation }) {
-    const ip = Constantes.IP;
+    const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
+    // Función para cargar la lista de vehículos
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
 
+    // Funcion para cambiar la contraseña
     const changePassword = async () => {
         if (newPassword === '' || confirmPassword === '') {
             setAlertMessage('Por favor, complete ambos campos.');

@@ -184,7 +184,7 @@ INNER JOIN
 INNER JOIN 
     modelos mo ON v.id_modelo = mo.id_modelo
 WHERE 
-    v.id_cliente = 1; */
+    v.id_cliente = ?; */
     
 -- Datos para la tabla marcas
 INSERT INTO marcas (marca_vehiculo)
@@ -257,6 +257,5 @@ INSERT INTO servicios (nombre_servicio, descripcion_servicio) VALUES
 
 SELECT * FROM clientes;
 SELECT * FROM vehiculos;
-SELECT * FROM servicios;
 SELECT * FROM citas;
 SELECT * FROM cita_servicios;

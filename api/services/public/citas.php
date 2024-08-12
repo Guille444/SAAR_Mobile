@@ -119,19 +119,19 @@ if (isset($_GET['action'])) {
                     $result['error'] = 'No se ha definido el ID del cliente.';
                 }
                 break;
-                case 'readAllByClientMobile':
-                    if (isset($_SESSION['idCliente'])) {
-                        try {
-                            $result['dataset'] = $citas->readAllByClientMobile();  // Asegúrate de que es un arreglo
-                            $result['status'] = 1;
-                            $result['message'] = 'Vehículos cargados correctamente';
-                        } catch (Exception $e) {
-                            $result['error'] = $e->getMessage();
-                        }
-                    } else {
-                        $result['error'] = 'No se ha definido el ID del cliente.';
+            case 'readAllByClientMobile':
+                if (isset($_SESSION['idCliente'])) {
+                    try {
+                        $result['dataset'] = $citas->readAllByClientMobile();  // Asegúrate de que es un arreglo
+                        $result['status'] = 1;
+                        $result['message'] = 'Vehículos cargados correctamente';
+                    } catch (Exception $e) {
+                        $result['error'] = $e->getMessage();
                     }
-                    break;
+                } else {
+                    $result['error'] = 'No se ha definido el ID del cliente.';
+                }
+                break;
             default:
                 $result['error'] = 'Acción no disponible dentro de la sesión';
         }

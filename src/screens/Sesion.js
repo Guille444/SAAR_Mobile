@@ -4,12 +4,13 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-nativ
 import AwesomeAlert from 'react-native-awesome-alerts';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Constantes from '../../utils/constantes';
+import CustomTextInput from '../components/Input/TextInput'; // Importa el componente CustomTextInput
+import CustomButton from '../components/Button/Button'; // Importa el componente CustomButton
 
 // Componente principal
 export default function Sesion({ navigation }) {
- 
+
     const ip = Constantes.IP;
-    
     // Estados
     const [isContra, setIsContra] = useState(true);  // Estado para mostrar/ocultar la contraseña
     const [usuario, setUsuario] = useState(''); // Estado para el campo del usuario
@@ -144,16 +145,14 @@ export default function Sesion({ navigation }) {
     return (
         <View style={styles.container}>
             <Text onPress={cerrarSesion} style={styles.welcomeText}>Bienvenido</Text>
-            <TextInput
+            <CustomTextInput
                 value={usuario}
                 onChangeText={setUsuario}
-                style={styles.input}
                 placeholder="Alias"
             />
-            <TextInput
+            <CustomTextInput
                 value={contrasenia}
                 onChangeText={setContrasenia}
-                style={styles.input}
                 placeholder="Contraseña"
                 secureTextEntry={true}
             />
@@ -163,9 +162,10 @@ export default function Sesion({ navigation }) {
             <TouchableOpacity onPress={irRegistrar}>
                 <Text style={styles.registerText}>¿No tienes una cuenta? Regístrate</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handlerLogin} style={styles.loginButton}>
-                <Text style={styles.loginButtonText}>INICIAR SESIÓN</Text>
-            </TouchableOpacity>
+            <CustomButton
+                onPress={handlerLogin}
+                title="INICIAR SESIÓN"
+            />
             <AwesomeAlert
                 show={showAlertWithMessage}
                 showProgress={showProgress}
@@ -203,25 +203,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 40,
     },
-    input: {
-        backgroundColor: '#f0f0f0', // Fondo gris claro similar al botón
-        width: '100%',
-        height: 50,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        marginBottom: 12,
-        paddingLeft: 10,
-        fontSize: 16,
-        borderRadius: 8, // Bordes redondeados para el input
-        backgroundColor: '#f9f9f9', // Fondo claro para los campos de entrada
-    },
     forgotPasswordText: {
         fontSize: 16,
         color: '#000',
         marginBottom: 20,
         alignSelf: 'flex-start',
         borderBottomWidth: 0.5,
-        borderBottomColor: '#000', // Color del subrayado 
+        borderBottomColor: '#000',
     },
     registerText: {
         fontSize: 16,
@@ -229,20 +217,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         alignSelf: 'flex-start',
         borderBottomWidth: 0.5,
-        borderBottomColor: '#000', // Color del subrayado 
-    },
-    loginButton: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#000',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 5,
-    },
-    loginButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+        borderBottomColor: '#000',
     },
     alertContentContainer: {
         borderRadius: 10,
