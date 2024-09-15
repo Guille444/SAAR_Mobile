@@ -200,8 +200,6 @@ class ClienteHandler
 
     //Recuperacion de contraseña 
 
-    /*GENERAR PIN*/
-
     public function verifUs()
     {
         $sql = 'SELECT * FROM clientes 

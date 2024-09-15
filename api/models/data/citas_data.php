@@ -86,6 +86,18 @@ class CitasData extends CitasHandler
         }
     }
 
+    public function setHoraCita($value)
+    {
+        // Validar el formato de la hora (24 horas) - HH:MM
+        if (preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $value)) {
+            $this->hora_cita = $value;
+            return true;
+        } else {
+            $this->data_error = 'Formato de hora incorrecto. Debe ser HH:MM en formato de 24 horas.';
+            return false;
+        }
+    }
+
     /*
      *  Métodos para obtener los atributos adicionales.
      */
@@ -94,4 +106,3 @@ class CitasData extends CitasHandler
         return $this->data_error;
     }
 }
-?>

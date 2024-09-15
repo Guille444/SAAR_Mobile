@@ -1,7 +1,7 @@
 <?php
 // Se incluye la clase para trabajar con la base de datos.
 require_once('../../helpers/database.php');
-
+date_default_timezone_set('America/El_Salvador'); // Ajusta a tu zona horaria
 /*
 *	Clase para manejar el comportamiento de los datos de la tabla CITAS.
 */
@@ -16,6 +16,8 @@ class CitasHandler
     protected $id_servicio = null;
     protected $fecha_cita = null;
     protected $estado_cita = null;
+    protected $hora_cita = null;
+
 
     /*
     *   Métodos para realizar las operaciones SCRUD (search, create, read, update, and delete).
@@ -78,42 +80,59 @@ class CitasHandler
     }
 
     /*
-     *  Métodos para gestionar las operaciones CRUD.
-     */
+    *  Métodos para gestionar las operaciones CRUD.
+    */
 
+    
     public function createRow($services)
     {
-        // Log de los servicios recibidos
-        file_put_contents('php://stderr', "Servicios recibidos: " . json_encode($services) . "\n", FILE_APPEND);
+        try {
+            // Log de los servicios recibidos
+            file_put_contents('php://stderr', "Servicios recibidos: " . json_encode($services) . "\n", FILE_APPEND);
 
-        // Insertar la cita
-        $sql = 'INSERT INTO citas(id_cliente, id_vehiculo, fecha_cita) VALUES(?, ?, ?)';
-        $params = array($_SESSION['idCliente'], $this->id_vehiculo, $this->fecha_cita);
-        $citaId = Database::getLastRow($sql, $params);
-
-        if ($citaId) {
-            // Log del ID de la cita creada
-            file_put_contents('php://stderr', "Cita creada con ID: $citaId\n", FILE_APPEND);
-
-            // Insertar los servicios asociados
-            $sql = 'INSERT INTO cita_servicios(id_cita, id_servicio) VALUES(?, ?)';
-            foreach ($services as $serviceId) {
-                // Log para cada inserción de servicio
-                file_put_contents('php://stderr', "Insertando servicio con ID: $serviceId en la cita ID: $citaId\n", FILE_APPEND);
-                $result = Database::executeRow($sql, array($citaId, $serviceId));
-                if (!$result) {
-                    // Log en caso de error en la inserción de servicio
-                    file_put_contents('php://stderr', "Error al insertar el servicio con ID: $serviceId\n", FILE_APPEND);
-                    return false; // Asegúrate de retornar false si ocurre un error en la inserción
-                }
+            // Verificar y formatear la hora correctamente
+            if ($this->hora_cita !== null) {
+                $this->hora_cita = date("H:i:s", strtotime($this->hora_cita));
+                // Ajustar a la zona horaria local si es necesario
+                $this->hora_cita = date("H:i:s", strtotime($this->hora_cita . ' UTC'));
+            } else {
+                file_put_contents('php://stderr', "La hora de la cita no está establecida correctamente\n", FILE_APPEND);
+                return false;
             }
-            return true;
-        } else {
-            // Log en caso de error en la creación de la cita
-            file_put_contents('php://stderr', "Error al crear la cita. ID de cita: $citaId\n", FILE_APPEND);
+
+            // Log de la consulta y parámetros
+            file_put_contents('php://stderr', "Intentando ejecutar SQL: INSERT INTO citas(id_cliente, id_vehiculo, fecha_cita, hora_cita)\n", FILE_APPEND);
+            file_put_contents('php://stderr', "Parámetros: " . json_encode(array($_SESSION['idCliente'], $this->id_vehiculo, $this->fecha_cita, $this->hora_cita)) . "\n", FILE_APPEND);
+
+            // Insertar la cita
+            $sql = 'INSERT INTO citas(id_cliente, id_vehiculo, fecha_cita, hora_cita) VALUES(?, ?, ?, ?)';
+            $params = array($_SESSION['idCliente'], $this->id_vehiculo, $this->fecha_cita, $this->hora_cita);
+            $citaId = Database::getLastRow($sql, $params);
+
+            if ($citaId) {
+                file_put_contents('php://stderr', "Cita creada con ID: $citaId\n", FILE_APPEND);
+
+                // Insertar los servicios asociados
+                $sql = 'INSERT INTO cita_servicios(id_cita, id_servicio) VALUES(?, ?)';
+                foreach ($services as $serviceId) {
+                    file_put_contents('php://stderr', "Insertando servicio con ID: $serviceId en la cita ID: $citaId\n", FILE_APPEND);
+                    $result = Database::executeRow($sql, array($citaId, $serviceId));
+                    if (!$result) {
+                        file_put_contents('php://stderr', "Error al insertar el servicio con ID: $serviceId\n", FILE_APPEND);
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                file_put_contents('php://stderr', "Error al crear la cita\n", FILE_APPEND);
+            }
+        } catch (Exception $e) {
+            file_put_contents('php://stderr', "Excepción capturada en createRow: " . $e->getMessage() . "\n", FILE_APPEND);
+            return false;
         }
         return false;
     }
+
 
     public function updateRow($services)
     {

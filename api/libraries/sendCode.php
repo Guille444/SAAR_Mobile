@@ -76,14 +76,15 @@ try {
             <style>
                 body {
                     font-family: Arial, sans-serif;
-                    background-color: #d1cdb8;
-                    color: #000;
+                    background-color: #000;
+                    color: #fff;
                     text-align: center;
                     padding: 50px;
                 }
                 .container {
-                    background-color: #f0f0f0;
+                    background-color: #000;
                     padding: 20px;
+                    color: #fff;
                     border-radius: 10px;
                     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                     max-width: 400px;
@@ -92,16 +93,19 @@ try {
                 .header {
                     font-size: 24px;
                     margin-bottom: 20px;
+                    color: #fff;
                 }
                 .pin {
-                    font-size: 36px;
+                    font-size: 30px;
                     letter-spacing: 10px;
                     font-weight: bold;
                     margin: 20px 0;
+                    color: #fff;
                 }
                 .message {
                     font-size: 18px;
                     margin-top: 20px;
+                    color: #fff;
                 }
                 .footer {
                     font-size: 14px;
@@ -112,11 +116,11 @@ try {
         </head>
         <body>
             <div class='container'>
-                <div class='header'>Recuperación de contraseña</div>
+                <div class='header'>Código de recuperación</div>
                 <p>Hola, <strong>$alias</strong>.</p>
                 <p>Este es tu código de recuperación: <strong class='pin'>$pin</strong></p>
                 <p class='message'>Si no solicitó este código, ignore este mensaje.</p>
-                <div class='footer'>SAAR - Sistema de Administración Automotriz Rodríguez</div>
+                <div class='footer'><strong>SAAR - Sistema de Administración Automotriz Rodríguez</strong></div>
             </div>
         </body>
         </html>";

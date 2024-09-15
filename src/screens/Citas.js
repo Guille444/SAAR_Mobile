@@ -12,6 +12,9 @@ export default function Citas({ navigation }) {
 
   // Estados para manejar datos y mostrar la interfaz
   const [fecha, setFecha] = useState(new Date());
+  const [hora, setHora] = useState(new Date());
+  const [modoHora, setModoHora] = useState('time');
+  const [mostrarHora, setMostrarHora] = useState(false);
   const [modo, setModo] = useState('date');
   const [mostrar, setMostrar] = useState(false);
   const [serviciosSeleccionados, setServiciosSeleccionados] = useState([]);
@@ -110,11 +113,36 @@ export default function Citas({ navigation }) {
     mostrarModo('date');
   };
 
-  const manejarConfirmacion = (evento, fechaSeleccionada) => {
-    setMostrar(Platform.OS === 'ios'); // Oculta el selector en Android después de seleccionar una fecha
-    if (evento.type === 'set' && fechaSeleccionada) {
-      setFecha(fechaSeleccionada);
+  const manejarConfirmacion = (evento, valorSeleccionado) => {
+    if (evento.type === 'set' && valorSeleccionado) {
+      if (modo === 'date') {
+        setFecha(valorSeleccionado);
+      } else if (modoHora === 'time') {
+        setHora(valorSeleccionado);
+      }
     }
+    setMostrar(Platform.OS === 'ios'); // Oculta el selector en Android después de seleccionar
+    setMostrarHora(false); // Oculta el selector de hora
+  };
+
+  // Manejo de la selección de hora
+  const manejarSeleccionHora = (horaSeleccionada) => {
+    // Actualiza el estado con la nueva hora
+    setHora(horaSeleccionada);
+    console.log('Hora seleccionada:', horaSeleccionada.toISOString());
+  };
+
+  // Función para manejar la confirmación de la hora
+  const manejarConfirmacionHora = (evento, valorSeleccionado) => {
+    if (evento.type === 'set' && valorSeleccionado) {
+      manejarSeleccionHora(valorSeleccionado);
+      setMostrarHora(false); // Oculta el selector de hora después de seleccionar
+    }
+  };
+
+  const formatearHora = (hora) => {
+    const opciones = { hour: '2-digit', minute: '2-digit', hour12: true };
+    return hora.toLocaleTimeString([], opciones);
   };
 
   // Función para agendar una cita
@@ -140,10 +168,18 @@ export default function Citas({ navigation }) {
       return;
     }
 
+    if (!hora) {
+      setAlertTitle('Error');
+      setAlertMessage('Por favor, seleccione una hora.');
+      setAlertVisible(true);
+      return;
+    }
+
     const cita = {
       id_vehiculo: vehiculo,
       id_servicio: serviciosSeleccionados,
       fecha_cita: fecha.toISOString().split('T')[0],
+      hora_cita: hora.toISOString().split('T')[1].slice(0, 5), // Formato HH:mm
     };
 
     console.log('Datos enviados:', cita);
@@ -168,12 +204,13 @@ export default function Citas({ navigation }) {
         const datos = JSON.parse(textoRespuesta);
         console.log('Datos procesados:', datos);
 
-        if (datos.status) { // Cambiado para manejar el campo `status` booleano
+        if (datos.status) {
           setAlertTitle('Éxito');
           setAlertMessage(datos.message || 'Cita agendada con éxito');
           setAlertVisible(true);
           // Limpiar los campos después de un registro exitoso
           setFecha(new Date());
+          setHora(new Date());
           setVehiculo('');
           setServiciosSeleccionados([]);
         } else {
@@ -196,6 +233,9 @@ export default function Citas({ navigation }) {
     }
   };
 
+  const mostrarSelectorDeHora = () => {
+    setMostrarHora(true);
+  };
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -278,6 +318,21 @@ export default function Citas({ navigation }) {
                 />
               )}
             </View>
+            <View style={styles.contenedorFecha}>
+              <Text style={styles.etiqueta}>Hora de cita</Text>
+              <TouchableOpacity onPress={mostrarSelectorDeHora}>
+                <Text style={styles.textoFecha}>{formatearHora(hora)}</Text>
+              </TouchableOpacity>
+              {mostrarHora && (
+                <DateTimePicker
+                  value={hora}
+                  mode="time"
+                  is24Hour={false} // Establecer en falso para formato de 12 horas
+                  onChange={manejarConfirmacionHora} // Usar manejarConfirmacionHora para confirmar la hora
+                  style={styles.selectorDeFecha}
+                />
+              )}
+            </View>
             <TouchableOpacity style={styles.boton} onPress={manejarAgendar}>
               <Text style={styles.textoBoton}>AGENDAR</Text>
             </TouchableOpacity>
@@ -300,7 +355,6 @@ export default function Citas({ navigation }) {
         onConfirmPressed={() => {
           setAlertVisible(false);
           if (alertTitle === 'Éxito') {
-            navigation.goBack(); // Redirige a la pantalla anterior si es exitoso
           }
         }}
         titleStyle={styles.alertTitle}
@@ -369,7 +423,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
-    backgroundColor: '#f0f0f0', // Asegura que el fondo sea blanco
+    marginVertical: 10,
+    backgroundColor: '#f9f9f9', // Asegura que el fondo sea blanco
   },
   etiqueta: {
     fontSize: 16,

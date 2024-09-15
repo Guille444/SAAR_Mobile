@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('America/El_Salvador'); // Ajusta a tu zona horaria
 // Asegúrate de que $data esté siendo inicializada correctamente
 $data = json_decode(file_get_contents('php://input'), true);
 // Verifica si $data es null y maneja el error
@@ -33,10 +33,10 @@ if (isset($_GET['action'])) {
                 break;
             case 'createRow':
                 file_put_contents('php://stderr', print_r($data, TRUE)); // Log de los datos recibidos
-
                 if (
                     !isset($data['id_vehiculo']) || !is_numeric($data['id_vehiculo']) ||
                     !isset($data['fecha_cita']) || empty($data['fecha_cita']) ||
+                    !isset($data['hora_cita']) || empty($data['hora_cita']) ||
                     !isset($data['id_servicio']) || !is_array($data['id_servicio']) || empty($data['id_servicio'])
                 ) {
                     $result['error'] = 'Datos incompletos o inválidos';
@@ -44,6 +44,7 @@ if (isset($_GET['action'])) {
                 } else {
                     $citas->setIdVehiculo((int)$data['id_vehiculo']);
                     $citas->setFechaCita($data['fecha_cita']);
+                    $citas->setHoraCita($data['hora_cita']); // Ahora solo pasa la hora tal como está
                     $citas->setIdCliente($_SESSION['idCliente']);
                     $result['status'] = $citas->createRow($data['id_servicio']);
                     if ($result['status']) {

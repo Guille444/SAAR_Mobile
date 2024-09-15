@@ -8,7 +8,6 @@ if (isset($_GET['action'])) {
     if (!isset($_SESSION['clienteRecup']) || empty($_SESSION['clienteRecup'])) {
         error_log('ID de cliente en la sesión no está establecido o está vacío');
     }
-
     // Se instancia la clase correspondiente.
     $cliente = new ClienteData;
     // Se declara e inicializa un arreglo para guardar el resultado que retorna la API.

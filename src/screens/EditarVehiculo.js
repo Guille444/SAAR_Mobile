@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
-        marginTop: 15,
+        marginTop: 100,
     },
     input: {
         backgroundColor: '#f0f0f0', // Fondo gris claro similar al botón
