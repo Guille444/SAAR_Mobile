@@ -85,7 +85,7 @@ if (isset($_GET['action'])) {
             case 'getUser':
                 if (isset($_SESSION['aliasCliente'])) {
                     $result['status'] = 1;
-                    $result['username'] = $_SESSION['aliasCliente'];
+                    $result['username'] = $_SESSION['aliasCliente']; // Devolver el alias del cliente
                 } else {
                     $result['error'] = 'Alias de usuario indefinido';
                 }

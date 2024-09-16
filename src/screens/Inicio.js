@@ -1,10 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import AwesomeAlert from 'react-native-awesome-alerts';
+import { View, Text, StyleSheet, Image, Alert } from 'react-native';
 import * as Constantes from '../../utils/constantes';
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function Inicio({ navigation }) {
+export default function Inicio({ navigation, route }) {
+    const [alias, setAlias] = useState(null);
     const ip = Constantes.IP;
+
+    // Función para obtener el alias del usuario
+    const getAlias = async () => {
+        try {
+            const response = await fetch(`${ip}/services/public/cliente.php?action=getUser`, {
+                method: 'GET'
+            });
+            const data = await response.json();
+            if (data.status) {
+                setAlias(data.username); // Usar `username` si es lo que devuelves del backend
+            } else {
+                Alert.alert('Error', data.error);
+            }
+        } catch (error) {
+            Alert.alert('Error', 'Ocurrió un error al obtener el alias');
+            console.error('Error al obtener el alias:', error);
+        }
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getAlias(); // Obtener el alias cuando la pantalla se enfoque
+        }, [])
+    );
+
+    useEffect(() => {
+        // Si el parámetro `aliasUpdated` está presente, actualizar el alias
+        if (route.params?.aliasUpdated) {
+            getAlias();
+        }
+    }, [route.params?.aliasUpdated]);
 
     useEffect(() => {
         navigation.setOptions({
@@ -15,40 +47,15 @@ export default function Inicio({ navigation }) {
             ),
             headerTitleAlign: 'center',
         });
-    }, []);
-
-    // Estados para manejar la visibilidad y el mensaje de la alerta
-    const [alertVisible, setAlertVisible] = useState(false);
-    const [alertMessage, setAlertMessage] = useState('');
-    const [alertType, setAlertType] = useState('success');
-
-    // Función para mostrar una alerta con un mensaje específico
-    const showAlert = (title, message, type) => {
-        setAlertMessage(message); // Establecer el mensaje de la alerta
-        setAlertType(type); // Establecer el tipo de alerta
-        setAlertVisible(true); // Mostrar la alerta
-    };
+    }, [navigation]);
 
     return (
         <View style={styles.container}>
             <Image source={require('../img/llanta.png')} style={styles.image} />
-            <AwesomeAlert
-                show={alertVisible}
-                showProgress={false}
-                title={alertType === 'success' ? 'Éxito' : 'Error'}
-                message={alertMessage}
-                closeOnTouchOutside={true}
-                closeOnHardwareBackPress={false}
-                showConfirmButton={true}
-                confirmText="OK"
-                confirmButtonColor={alertType === 'success' ? '#0A305E' : '#DD6B55'}
-                confirmButtonStyle={styles.alertConfirmButton}
-                confirmButtonTextStyle={styles.alertConfirmButtonText}
-                onConfirmPressed={() => setAlertVisible(false)}
-                contentContainerStyle={styles.alertContentContainer}
-                titleStyle={styles.alertTitle}
-                messageStyle={styles.alertMessage}
-            />
+            <Text style={styles.welcomeText}>Bienvenido</Text>
+            <Text style={styles.aliasText}>
+                {alias ? alias : 'No hay alias para mostrar'}
+            </Text>
         </View>
     );
 }
@@ -58,6 +65,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#fff', // Puedes ajustar el color de fondo según tu diseño
     },
     headerTitleContainer: {
         flexDirection: 'row',
@@ -76,24 +84,11 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
     },
-    alertConfirmButton: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-    },
-    alertConfirmButtonText: {
-        fontSize: 16,
-    },
-    alertContentContainer: {
-        borderRadius: 10,
-        padding: 20,
-    },
-    alertTitle: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    alertMessage: {
-        fontSize: 18,
-        marginBottom: 10,
+    aliasText: {
+        fontSize: 20,
+        fontWeight: '600',
+        marginVertical: 10,
+        fontWeight: 'condensed',
+        color: '#000', // Color del texto para el alias
     },
 });

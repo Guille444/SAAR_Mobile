@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     },
     button: {
         marginLeft: 10, // Espacio entre los botones
+        marginTop: 100,
     },
     title: {
         fontSize: 20,

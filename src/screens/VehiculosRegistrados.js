@@ -30,15 +30,15 @@ export default function VehiculosRegistrados() {
                             setShowAlert(false); // Asegurarse de que no se muestre alerta si hay vehículos
                         } else {
                             setVehiculos([]); // Asegurarse de que la lista de vehículos esté vacía
-                            setAlertMessage('No se encontraron vehículos para este cliente.');
-                            setAlertType('info'); // Cambia el tipo de alerta a 'info'
-                            setShowAlert(true); // Mostrar alerta
+                            // setAlertMessage('No se encontraron vehículos para este cliente.');
+                            // setAlertType('info'); // Cambia el tipo de alerta a 'info'
+                            // setShowAlert(true); // Mostrar alerta
                         }
                     } else {
                         // Mostrar alerta solo para errores críticos
-                        setAlertMessage('No se encontraron vehículos para este cliente.');
-                        setAlertType('info'); // Cambia el tipo de alerta a 'info'
-                        setShowAlert(true);
+                        // setAlertMessage('No se encontraron vehículos para este cliente.');
+                        // setAlertType('info'); // Cambia el tipo de alerta a 'info'
+                        // setShowAlert(true);
                     }
                 })
                 .catch(error => {
@@ -129,7 +129,7 @@ export default function VehiculosRegistrados() {
                 closeOnHardwareBackPress={false}
                 showConfirmButton={alertType !== ''}
                 showCancelButton={alertType === 'confirm'}
-                confirmText="OK"
+                confirmText="Aceptar"
                 cancelText="Cancelar"
                 confirmButtonColor={alertType === 'success' ? 'gray' : alertType === 'error' ? '#dc3545' : 'gray'}
                 cancelButtonColor='#DC3545'
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 10, // Espacio debajo del encabezado
-        marginTop: 15, // Espacio encima del encabezado
+        marginTop: 35, // Espacio encima del encabezado
         textAlign: 'center', // Centra el texto del encabezado
     },
     noVehiclesText: {

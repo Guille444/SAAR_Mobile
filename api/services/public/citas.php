@@ -63,12 +63,17 @@ if (isset($_GET['action'])) {
                 }
                 break;
             case 'readOne':
-                if (!$citas->setId($_POST['id_cita'])) {
-                    $result['error'] = 'Cita incorrecta';
-                } elseif ($result['dataset'] = $citas->readOne()) {
-                    $result['status'] = 1;
+                if (!isset($data['id_cita']) || !is_numeric($data['id_cita'])) {
+                    $result['error'] = 'ID de cita inválido';
                 } else {
-                    $result['error'] = 'Cita inexistente';
+                    $citas->setId($data['id_cita']);
+                    $dataset = $citas->readOne();
+                    if ($dataset) {
+                        $result['status'] = 1;
+                        $result['dataset'] = $dataset;
+                    } else {
+                        $result['error'] = 'Cita inexistente';
+                    }
                 }
                 break;
             case 'updateRow':
@@ -77,8 +82,9 @@ if (isset($_GET['action'])) {
                     !$citas->setId($_POST['id_cita']) ||
                     !$citas->setIdVehiculo($_POST['id_vehiculo']) ||
                     !$citas->setFechaCita($_POST['fecha_cita']) ||
-                    !isset($_POST['id_servicio']) || empty($_POST['id_servicio']) ||
-                    !$citas->setEstado($_POST['estado_cita'])
+                    !$citas->setHoraCita($_POST['hora_cita']) ||
+                    !$citas->setEstado($_POST['estado_cita']) ||
+                    !isset($_POST['id_servicio']) || empty($_POST['id_servicio'])
                 ) {
                     $result['error'] = 'Datos incompletos o inválidos';
                 } elseif ($citas->updateRow($_POST['id_servicio'])) {
@@ -89,15 +95,23 @@ if (isset($_GET['action'])) {
                 }
                 break;
             case 'deleteRow':
-                if (!$citas->setId($_POST['id_cita'])) {
-                    $result['error'] = 'Cita incorrecta';
-                } elseif ($citas->deleteRow()) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Cita eliminada correctamente';
+                header('Content-Type: application/json');
+                // Asegúrate de que el contenido sea solo JSON
+                $result = array('status' => 0, 'session' => 0, 'message' => null, 'error' => null, 'exception' => null);
+                if (!isset($data['id_cita']) || !is_numeric($data['id_cita'])) {
+                    $result['status'] = 0;
+                    $result['error'] = 'ID de cita inválido.';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al eliminar la cita';
+                    $citas->setId($data['id_cita']);
+                    $result['status'] = $citas->deleteRow();
+                    if ($result['status']) {
+                        $result['message'] = 'Cita eliminada correctamente.';
+                    } else {
+                        $result['error'] = 'Ocurrió un problema al eliminar la cita.';
+                    }
                 }
-                break;
+                echo json_encode($result); // Envía una sola respuesta JSON
+                exit; // Asegúrate de salir del script después de enviar la respuesta                
             case 'getServices':
                 // Obtener todos los servicios
                 if ($result['dataset'] = $citas->getServices()) {
@@ -125,7 +139,7 @@ if (isset($_GET['action'])) {
                     try {
                         $result['dataset'] = $citas->readAllByClientMobile();  // Asegúrate de que es un arreglo
                         $result['status'] = 1;
-                        $result['message'] = 'Vehículos cargados correctamente';
+                        $result['message'] = 'Citas cargados correctamente';
                     } catch (Exception $e) {
                         $result['error'] = $e->getMessage();
                     }

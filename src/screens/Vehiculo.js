@@ -160,17 +160,20 @@ export default function Vehiculo({ navigation }) {
   };
 
   const showAlert = (title, message, onConfirm) => {
-    setAlertConfig(prevConfig => ({
-      show: true,
-      title,
-      message,
-      confirmText: 'OK',
-      onConfirm: () => {
-        setAlertConfig(prevConfig => ({ ...prevConfig, show: false }));
-        if (onConfirm) onConfirm();
-        alertShown.current = true; // Alerta
-      }
-    }));
+    if (!alertShown.current) {
+      setAlertConfig(prevConfig => ({
+        show: true,
+        title,
+        message,
+        confirmText: 'OK',
+        onConfirm: () => {
+          setAlertConfig(prevConfig => ({ ...prevConfig, show: false }));
+          if (onConfirm) onConfirm();
+          alertShown.current = false; // Reset the flag after the alert has been shown
+        }
+      }));
+      alertShown.current = true; // Set the flag to true when the alert is about to be shown
+    }
   };
 
   const clearFields = () => {
@@ -250,9 +253,15 @@ export default function Vehiculo({ navigation }) {
         style={styles.input}
         placeholder="Año"
         keyboardType="numeric"
+        maxLength={4} // Limita la longitud del input a 4 caracteres
         value={año}
-        onChangeText={setAño}
+        onChangeText={(text) => {
+          // Asegúrate de que solo se ingresen números y no más de 4 dígitos
+          const numericText = text.replace(/[^0-9]/g, '').slice(0, 4);
+          setAño(numericText);
+        }}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Color"
