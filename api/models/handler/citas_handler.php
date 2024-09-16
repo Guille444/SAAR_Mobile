@@ -114,29 +114,16 @@
             return false;
         }
 
-
-        public function updateRow($services)
+        public function updateRow()
         {
-            // Actualizar la cita
+            // Actualizar la cita solo con fecha y hora
             $sql = 'UPDATE citas 
-            SET id_vehiculo = ?, fecha_cita = ?, hora_cita = ?, estado_cita = ?
-            WHERE id_cita = ?';
-            $params = array($this->id_vehiculo, $this->fecha_cita, $this->hora_cita, $this->estado_cita, $this->id);
+    SET fecha_cita = ?, hora_cita = ?
+    WHERE id_cita = ?';
+            $params = array($this->fecha_cita, $this->hora_cita, $this->id);
             $updated = Database::executeRow($sql, $params);
 
-            if ($updated) {
-                // Eliminar servicios existentes
-                $sql = 'DELETE FROM cita_servicios WHERE id_cita = ?';
-                Database::executeRow($sql, array($this->id));
-
-                // Insertar los nuevos servicios asociados
-                $sql = 'INSERT INTO cita_servicios(id_cita, id_servicio) VALUES(?, ?)';
-                foreach ($services as $serviceId) {
-                    Database::executeRow($sql, array($this->id, $serviceId));
-                }
-                return true;
-            }
-            return false;
+            return $updated; // Retorna true si la actualización fue exitosa, false en caso contrario
         }
 
         public function deleteRow()

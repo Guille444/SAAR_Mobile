@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import * as Constantes from '../../utils/constantes';
 import CitaCard from '../components/Cards/CitaCard';
 import AwesomeAlert from 'react-native-awesome-alerts';
+import UpdateCitaModal from '../components/Modals/ActualizarCita';
 
 export default function CitasRegistradas({ navigation }) {
     const ip = Constantes.IP;
@@ -14,6 +15,8 @@ export default function CitasRegistradas({ navigation }) {
     const [alertType, setAlertType] = useState(''); // 'success', 'error', 'confirm'
     const [alertMessage, setAlertMessage] = useState('');
     const [selectedCitaId, setSelectedCitaId] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [currentCita, setCurrentCita] = useState(null);
 
     // Función para cargar las citas
     const fetchCitas = async () => {
@@ -34,7 +37,6 @@ export default function CitasRegistradas({ navigation }) {
                 console.log('Datos recibidos:', result.dataset);
 
                 if (result.status === 1) {
-                    // Procesar los datos para cada cita
                     const citas = result.dataset.map(cita => ({
                         ...cita,
                         servicios: cita.servicios ? cita.servicios.split(',').map(servicio => servicio.trim()) : [],
@@ -70,14 +72,54 @@ export default function CitasRegistradas({ navigation }) {
         }, [])
     );
 
-    const handleEdit = (idCita) => {
-        if (!idCita) {
-            showAlert('Error', 'ID de cita inválido');
-            return;
-        }
-        console.log('Editando cita con ID:', idCita);
-        navigation.navigate('EditarCita', { citaId: idCita });
+    const handleEdit = (cita) => {
+        setCurrentCita(cita);
+        setModalVisible(true);
     };
+
+    const handleUpdateCita = async (fecha, hora) => {
+        if (!currentCita) return;
+        
+        // Convierte la fecha y hora a UTC para evitar problemas de zona horaria
+        const fechaHoraUTC = new Date(`${fecha}T${hora}Z`).toISOString();
+    
+        try {
+            const response = await fetch(`${ip}/services/public/citas.php?action=updateRow`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id_cita: currentCita.id_cita,
+                    fecha_cita: fechaHoraUTC.split('T')[0],
+                    hora_cita: fechaHoraUTC.split('T')[1].slice(0, 5),
+                }),
+            });
+    
+            const result = await response.json();
+            console.log('Respuesta del servidor:', result);
+    
+            if (result.status === 1) {
+                setDataCitas(prevCitas => prevCitas.map(cita =>
+                    cita.id_cita === currentCita.id_cita ? { ...cita, fecha_cita: fecha, hora_cita: hora } : cita
+                ));
+                setAlertMessage('Cita actualizada correctamente.');
+                setAlertType('success');
+                setShowAlert(true);
+            } else {
+                setAlertMessage(result.error || 'No se pudo actualizar la cita.');
+                setAlertType('error');
+                setShowAlert(true);
+            }
+        } catch (error) {
+            setAlertMessage(`Ocurrió un error al actualizar la cita: ${error.message}`);
+            setAlertType('error');
+            setShowAlert(true);
+        } finally {
+            setModalVisible(false);
+            setCurrentCita(null);
+        }
+    };    
 
     const handleDelete = (id_cita) => {
         setSelectedCitaId(id_cita);
@@ -125,6 +167,8 @@ export default function CitasRegistradas({ navigation }) {
         setShowAlert(false); // Cierra la alerta
     };
 
+    
+
     return (
         <View style={styles.container}>
             <SafeAreaView style={styles.safeArea}>
@@ -143,7 +187,7 @@ export default function CitasRegistradas({ navigation }) {
                                 vehiculo={item.vehiculo}
                                 servicios={item.servicios}
                                 estado={item.estado_cita}
-                                onEdit={() => handleEdit(item.id_cita)}
+                                onEdit={() => handleEdit(item)}
                                 onDelete={() => handleDelete(item.id_cita)} // Pasar ID de la cita a la función de eliminación
                             />
                         )}
@@ -161,8 +205,8 @@ export default function CitasRegistradas({ navigation }) {
                     showCancelButton={alertType === 'confirm'}
                     confirmText="Aceptar"
                     cancelText="Cancelar"
-                    confirmButtonColor={alertType === 'success' ? 'gray' : alertType === 'error' ? '#dc3545' : 'gray'}
-                    cancelButtonColor='#DC3545'
+                    confirmButtonColor={alertType === 'success' ? 'gray' : alertType === 'error' ? '#dc3545' : '#007bff'}
+                    cancelButtonColor='gray'
                     confirmButtonTextStyle={styles.alertConfirmButtonText}
                     confirmButtonStyle={styles.alertConfirmButton}
                     cancelButtonTextStyle={styles.alertConfirmButtonText}
@@ -178,6 +222,13 @@ export default function CitasRegistradas({ navigation }) {
                         }
                     }}
                     onCancelPressed={cancelDelete}
+                />
+                <UpdateCitaModal
+                    isVisible={modalVisible}
+                    onClose={() => setModalVisible(false)}
+                    onUpdate={handleUpdateCita}
+                    initialDate={currentCita ? currentCita.fecha_cita : ''}
+                    initialTime={currentCita ? currentCita.hora_cita : ''}
                 />
             </SafeAreaView>
         </View>

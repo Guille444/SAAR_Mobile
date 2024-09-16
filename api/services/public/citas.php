@@ -77,21 +77,24 @@ if (isset($_GET['action'])) {
                 }
                 break;
             case 'updateRow':
-                $_POST = Validator::validateForm($_POST);
+                $data = json_decode(file_get_contents('php://input'), true);
                 if (
-                    !$citas->setId($_POST['id_cita']) ||
-                    !$citas->setIdVehiculo($_POST['id_vehiculo']) ||
-                    !$citas->setFechaCita($_POST['fecha_cita']) ||
-                    !$citas->setHoraCita($_POST['hora_cita']) ||
-                    !$citas->setEstado($_POST['estado_cita']) ||
-                    !isset($_POST['id_servicio']) || empty($_POST['id_servicio'])
+                    !isset($data['id_cita']) || !is_numeric($data['id_cita']) ||
+                    !isset($data['fecha_cita']) || empty($data['fecha_cita']) ||
+                    !isset($data['hora_cita']) || empty($data['hora_cita'])
                 ) {
                     $result['error'] = 'Datos incompletos o inválidos';
-                } elseif ($citas->updateRow($_POST['id_servicio'])) {
-                    $result['status'] = 1;
-                    $result['message'] = 'Cita modificada correctamente';
                 } else {
-                    $result['error'] = 'Ocurrió un problema al modificar la cita';
+                    $citas->setId($data['id_cita']);
+                    $citas->setFechaCita($data['fecha_cita']);
+                    $citas->setHoraCita($data['hora_cita']);
+
+                    if ($citas->updateRow()) {
+                        $result['status'] = 1;
+                        $result['message'] = 'Cita modificada correctamente';
+                    } else {
+                        $result['error'] = 'Ocurrió un problema al modificar la cita';
+                    }
                 }
                 break;
             case 'deleteRow':
