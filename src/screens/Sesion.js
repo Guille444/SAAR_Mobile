@@ -132,7 +132,7 @@ export default function Sesion({ navigation }) {
         navigation.navigate('Registro');
     };
 
-    // Función para navegar hacia la pantalla de recuperación de contraseña
+    // Función para navegar hacia la pantalla de recuperación de contraseña, navegación 
     const Recuperar = async () => {
         navigation.navigate('RecuperarClave');
     };
