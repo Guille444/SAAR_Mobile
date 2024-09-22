@@ -86,7 +86,7 @@ export default function EditarVehiculo({ route, navigation }) {
             });
 
             const text = await response.text(); // Obtener la respuesta como texto
-            console.log('Response text:', text); // Imprimir la respuesta para depuración
+            console.log('Response text:', text); // Imprimir la respuesta para la depuración
 
             try {
                 const data = JSON.parse(text); // Intentar analizar el texto como JSON
