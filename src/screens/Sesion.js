@@ -56,7 +56,7 @@ export default function Sesion({ navigation }) {
 
     useFocusEffect(
         React.useCallback(() => {
-            // Restablecer los estados de usuario y contrasenia cuando la pantalla se enfoca
+            // Restablecer los estados de usuario y contraseña cuando la pantalla se enfoca
             setUsuario('');
             setContrasenia('');
         }, [])
