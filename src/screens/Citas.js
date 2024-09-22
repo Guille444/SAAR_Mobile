@@ -141,8 +141,9 @@ export default function Citas({ navigation }) {
   };
 
   const formatearHora = (hora) => {
-    const opciones = { hour: '2-digit', minute: '2-digit', hour12: true };
-    return hora.toLocaleTimeString([], opciones);
+    const opciones = { hour: 'numeric', minute: '2-digit', hour12: true };
+    const horaFormateada = hora.toLocaleTimeString([], opciones);
+    return horaFormateada.replace(/AM/, 'a.m.').replace(/PM/, 'p.m.'); // Cambiar AM/PM por a.m./p.m.
   };
 
   // Función para agendar una cita
@@ -171,6 +172,18 @@ export default function Citas({ navigation }) {
     if (!hora) {
       setAlertTitle('Error');
       setAlertMessage('Por favor, seleccione una hora.');
+      setAlertVisible(true);
+      return;
+    }
+
+    // Obtener las horas y minutos
+    const hours = hora.getHours();
+    const minutes = hora.getMinutes();
+
+    // Validar que la hora esté entre 8:00 AM y 4:00 PM
+    if (hours < 8 || hours > 16 || (hours === 16 && minutes > 0)) {
+      setAlertTitle('Error');
+      setAlertMessage('La hora debe estar entre 8:00 a.m. y 4:00 p.m.');
       setAlertVisible(true);
       return;
     }

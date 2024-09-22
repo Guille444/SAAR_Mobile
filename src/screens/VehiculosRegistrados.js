@@ -131,8 +131,8 @@ export default function VehiculosRegistrados() {
                 showCancelButton={alertType === 'confirm'}
                 confirmText="Aceptar"
                 cancelText="Cancelar"
-                confirmButtonColor={alertType === 'success' ? 'gray' : alertType === 'error' ? '#dc3545' : 'gray'}
-                cancelButtonColor='#DC3545'
+                confirmButtonColor={alertType === 'success' ? 'gray' : alertType === 'error' ? '#dc3545' : '#007bff'}
+                cancelButtonColor='gray'
                 confirmButtonTextStyle={styles.alertConfirmButtonText}
                 confirmButtonStyle={styles.alertConfirmButton}
                 cancelButtonTextStyle={styles.alertConfirmButtonText}

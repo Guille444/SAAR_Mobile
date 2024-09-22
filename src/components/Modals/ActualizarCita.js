@@ -16,15 +16,45 @@ const UpdateCitaModal = ({ isVisible, onClose, onUpdate, initialDate, initialTim
         setHora(initialTime ? new Date(`1970-01-01T${initialTime}`) : new Date());
     }, [initialDate, initialTime]);
 
+    useEffect(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
+        if (fecha >= today) {
+            setErrorFecha('');
+        }
+    }, [fecha]);
+
+    useEffect(() => {
+        const hours = hora.getHours();
+        const minutes = hora.getMinutes();
+        if (!(hours < 8 || hours > 16 || (hours === 16 && minutes > 0))) {
+            setErrorHora('');
+        }
+    }, [hora]);
+
     const handleUpdate = () => {
         const formattedDate = fecha.toISOString().split('T')[0];
         const hours = hora.getHours();
         const minutes = hora.getMinutes();
-        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`; // Formato HH:mm
+        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+        // Validar que la fecha no sea anterior al día actual
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Establecer la hora a medianoche
+        if (fecha < today) {
+            setErrorFecha('La fecha no puede ser anterior al día actual.');
+            return;
+        }
 
         if (!formattedDate || !formattedTime) {
             if (!formattedDate) setErrorFecha('Fecha es requerida.');
             if (!formattedTime) setErrorHora('Hora es requerida.');
+            return;
+        }
+
+        // Validar que la hora esté entre 8:00 AM y 4:00 PM
+        if (hours < 8 || hours > 16 || (hours === 16 && minutes > 0)) {
+            setErrorHora('La hora debe estar entre 8:00 AM y 4:00 PM.');
             return;
         }
 
