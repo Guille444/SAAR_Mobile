@@ -39,9 +39,9 @@ export default function VerificarCodigo({ route, navigation }) {
         }
     };
 
-    // Maneja la pulsación de teclas en los campos
+    // Maneja la pulsación de teclas en los campos de la pantalla
     const onKeyPress = (e, index) => {
-        if (e.nativeEvent.key === 'Backspace') { // Si se presiona la tecla de retroceso
+        if (e.nativeEvent.key === 'Backspace') { // Si se presiona "backspace" o la tecla para borrar
             // Limpia el campo actual
             const setNumber = [setNumber1, setNumber2, setNumber3, setNumber4, setNumber5, setNumber6][index];
             setNumber('');
