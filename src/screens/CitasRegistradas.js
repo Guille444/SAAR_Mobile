@@ -172,6 +172,8 @@ export default function CitasRegistradas({ navigation }) {
         setShowAlert(false); // Cierra la alerta
     };
 
+
+    
     
 
     return (

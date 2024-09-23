@@ -11,11 +11,15 @@ Algunos estandares de programación en javascript
 */
 
 
+
+
 export default function Inicio({ navigation, route }) {
     const [alias, setAlias] = useState(null);
     const ip = Constantes.IP;
 
     
+    
+
     // Función para obtener el alias del usuario
     const getAlias = async () => {
         try {

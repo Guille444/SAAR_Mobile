@@ -7,6 +7,10 @@ import * as Constantes from '../../utils/constantes';
 export default function RecuperarClave({ navigation }) {
     const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
 
+
+
+
+    
     // Estados para manejar datos y mostrar la interfaz
     const [alias, setAlias] = useState('');
     const [showAlert, setShowAlert] = useState(false);
@@ -102,6 +106,8 @@ export default function RecuperarClave({ navigation }) {
             setShowAlert(true);
         }
     };
+
+    
 
     // Dentro de tu componente RecuperarClave
     useFocusEffect(

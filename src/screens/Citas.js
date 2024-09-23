@@ -48,6 +48,8 @@ export default function Citas({ navigation }) {
     }, [])
   );
 
+  
+
   useFocusEffect(
     useCallback(() => {
       

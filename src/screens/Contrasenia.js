@@ -3,6 +3,8 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Image 
 import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
+
+
 export default function Contrasenia({ navigation }) {
 
     const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
