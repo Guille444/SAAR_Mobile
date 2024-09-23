@@ -3,6 +3,13 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Alert 
 import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
+/* 
+Algunos estandares de programación en javascript
+1. Los archivos javascript deben estar escrito en el formato de codificacion UTF-8
+2. Para importar otros ES modules, se debe usar "import"
+3. No importar un mismo archivo mas de una vez, mejor importar los elementos con el mismo archivo
+*/
+
 export default function VerificarCodigo({ route, navigation }) {
     const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
 
