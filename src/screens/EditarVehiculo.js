@@ -125,6 +125,8 @@ export default function EditarVehiculo({ route, navigation }) {
         return regex.test(matricula);
     };
 
+    
+
     // Funcion para actualizar un vehiculo
     const actualizarVehiculo = async () => {
         if (!marca || !modelo || !año || !matricula || !color || !vin) {

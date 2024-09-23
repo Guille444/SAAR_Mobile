@@ -8,7 +8,9 @@ import * as Constantes from '../../utils/constantes';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
 export default function Citas({ navigation }) {
-  const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
+  const ip = Constantes.IP;     // Obtiene la IP del servidor desde las constantes
+
+  
 
   // Estados para manejar datos y mostrar la interfaz
   const [fecha, setFecha] = useState(new Date());
@@ -36,6 +38,8 @@ export default function Citas({ navigation }) {
     });
   }, [navigation]);
 
+  
+
   // Carga los vehículos y servicios cuando la pantalla se enfoca
   useFocusEffect(
     useCallback(() => {
@@ -46,6 +50,7 @@ export default function Citas({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
+      
       // Limpiar los campos cuando la pantalla se enfoque
       setFecha(new Date());
       setVehiculo('');

@@ -30,6 +30,8 @@ export default function Contrasenia({ navigation }) {
             return;
         }
 
+
+        
         // Verifica que la nueva contraseña y la confirmación coincidan
         if (newPassword !== confirmPassword) {
             showAlertWithMessage('La nueva contraseña y la confirmación no coinciden');

@@ -18,6 +18,8 @@ export default function CitasRegistradas({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [currentCita, setCurrentCita] = useState(null);
 
+    
+
     // Función para cargar las citas
     const fetchCitas = async () => {
         setLoading(true); // Inicia el loading
@@ -65,7 +67,8 @@ export default function CitasRegistradas({ navigation }) {
         }
     };
 
-    // Llama a fetchCitas cada vez que la pantalla reciba el enfoque
+   
+     // Llama a fetchCitas cada vez que la pantalla reciba el enfoque
     useFocusEffect(
         useCallback(() => {
             fetchCitas();
@@ -80,6 +83,8 @@ export default function CitasRegistradas({ navigation }) {
     const handleUpdateCita = async (fecha, hora) => {
         if (!currentCita) return;
         
+        
+
         // Convierte la fecha y hora a UTC para evitar problemas de zona horaria
         const fechaHoraUTC = new Date(`${fecha}T${hora}Z`).toISOString();
     
