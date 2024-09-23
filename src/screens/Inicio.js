@@ -15,6 +15,7 @@ export default function Inicio({ navigation, route }) {
     const [alias, setAlias] = useState(null);
     const ip = Constantes.IP;
 
+    
     // Función para obtener el alias del usuario
     const getAlias = async () => {
         try {
@@ -40,7 +41,8 @@ export default function Inicio({ navigation, route }) {
     );
 
     useEffect(() => {
-        // Si el parámetro `aliasUpdated` está presente, actualizar el alias
+       
+         // Si el parámetro `aliasUpdated` está presente, actualizar el alias
         if (route.params?.aliasUpdated) {
             getAlias();
         }

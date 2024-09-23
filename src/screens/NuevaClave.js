@@ -5,6 +5,7 @@ import * as Constantes from '../../utils/constantes';
 
 export default function NuevaClave({ navigation }) {
     const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
+    
     // Función para cargar la lista de vehículos
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -40,6 +41,7 @@ export default function NuevaClave({ navigation }) {
             if (data.status) {
                 setAlertMessage('Contraseña actualizada correctamente.');
                 setShowAlert(true);
+
                 // Redirige después de 2 segundos
                 setTimeout(() => {
                     setShowAlert(false);
@@ -61,7 +63,7 @@ export default function NuevaClave({ navigation }) {
             <View style={styles.header}>
                 <Text style={styles.title}>Actualizar contraseña</Text>
             </View>
-            <Text style={styles.instructions}>Ingresa tu nueva contraseña y confírmala</Text>
+            <Text style={styles.instructions}>Ingresa tu nueva contraseña y confírmala </Text>
             <TextInput
                 style={styles.input}
                 placeholder="Nueva contraseña"

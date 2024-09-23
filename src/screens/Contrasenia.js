@@ -74,7 +74,10 @@ export default function Contrasenia({ navigation }) {
         }
     };
 
-    // Función para navegar hacia la pantalla de Perfil
+
+ // Función para navegar hacia la pantalla de Perfil
+
+   
     const irPerfil = async () => {
         navigation.navigate('Perfil');
     };

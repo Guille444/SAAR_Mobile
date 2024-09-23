@@ -6,12 +6,15 @@ import * as Constantes from '../../utils/constantes';
 
 export default function RecuperarClave({ navigation }) {
     const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
+
     // Estados para manejar datos y mostrar la interfaz
     const [alias, setAlias] = useState('');
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
 
-    // Funcion que envia el correo
+
+   
+     // Funcion que envia el correo
     const sendMail = async (data) => {
         console.log('Datos recibidos en sendMail:', data);
         try {
@@ -66,6 +69,7 @@ export default function RecuperarClave({ navigation }) {
         }
     };
 
+    
     // Funcion para verificar el alias del usuario
     const handleUs = async () => {
         try {

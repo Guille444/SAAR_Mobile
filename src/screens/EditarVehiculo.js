@@ -126,8 +126,10 @@ export default function EditarVehiculo({ route, navigation }) {
     };
 
     
+// Funcion para actualizar un vehiculo
+    
 
-    // Funcion para actualizar un vehiculo
+
     const actualizarVehiculo = async () => {
         if (!marca || !modelo || !año || !matricula || !color || !vin) {
             showAlert('Error', 'Todos los campos deben ser completados.');
@@ -157,6 +159,8 @@ export default function EditarVehiculo({ route, navigation }) {
                     vin: vin
                 })
             });
+
+
 
             const text = await response.text(); // Obtener la respuesta como texto
             console.log('Response text:', text); // Imprimir la respuesta para depuración
